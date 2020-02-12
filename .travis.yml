@@ -162,13 +162,13 @@ jobs:
         - chmod +x *.sh
       deploy:
         - provider: script
-          script: docker_push_tag.sh
+          script: bash docker_push_tag.sh
           skip_cleanup: true
           on:
             tags: true
 
         - provider: script
-          script: docker_push_master.sh
+          script: bash docker_push_master.sh
           skip_cleanup: true
           on:
             branch: master
