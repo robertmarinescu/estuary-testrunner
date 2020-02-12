@@ -1,0 +1,1 @@
+{"finished": "false", "started": "true", "startedat": "2020-02-11 20:38:31.206687", "finishedat": "none", "duration": "none", "id": "none", "pid": 12248, "start_pid": "none", "commands": {"echo %PATH%": {"status": "scheduled", "details": {}}}}
