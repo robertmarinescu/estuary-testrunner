@@ -48,7 +48,7 @@ jobs:
         - docker exec estuary-testrunner python3 -m unittest discover /home/dev/scripts *_test.py
         - docker exec estuary-testrunner python3 -m unittest discover /home/dev/scripts "render_test.py"
 
-      #run executable tests
+      #run executable tests. exec with pyinstaller
     - language: python
       python: 3.6
       services: docker
