@@ -3,8 +3,12 @@
 echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
 if [[ -z "${TRAVIS_TAG}" ]]; then
-docker build . -t dinutac/estuary-testrunner:"${TRAVIS_TAG}"
-docker push dinutac/estuary-testrunner:"${TRAVIS_TAG}"
+#alpine
+docker build . -t dinutac/estuary-testrunner-alpine:"${TRAVIS_TAG}"
+docker push dinutac/estuary-testrunner-alpine:"${TRAVIS_TAG}"
+#centos
+docker build . -t dinutac/estuary-testrunner-centos:"${TRAVIS_TAG}"
+docker push dinutac/estuary-testrunner-centos:"${TRAVIS_TAG}"
 else
 #alpine
 docker build . -t dinutac/estuary-testrunner:latest
