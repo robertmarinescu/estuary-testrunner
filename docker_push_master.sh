@@ -7,8 +7,8 @@ docker build -t dinutac/estuary-testrunner-centos:latest -f Dockerfiles/Dockerfi
 docker push dinutac/estuary-testrunner-centos:latest
 
 #for alpine clean everything
-#git reset --hard && git clean -dfx
-#git checkout "${TRAVIS_BRANCH}"
+git reset --hard && git clean -dfx
+git checkout "${TRAVIS_BRANCH}"
 
 #alpine
 docker build . -t dinutac/estuary-testrunner:latest
