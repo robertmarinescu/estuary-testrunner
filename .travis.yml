@@ -157,14 +157,20 @@ jobs:
         - \cp dist/start start.py #this is now binary, bro
         - ls -lrt
       deploy:
-        provider: releases
-        api_key: $GITHUB_TOKEN
-        file:
-          - "main-linux"
-          - "start.py"
-        skip_cleanup: true
-        on:
-          tags: true
+        - provider: script
+          script: docker_push.sh
+          on:
+            tags: true
+            branch: master
+
+        - provider: releases
+          api_key: $GITHUB_TOKEN
+          file:
+            - "main-linux"
+            - "start.py"
+          skip_cleanup: true
+          on:
+            tags: true
 
 
 
