@@ -213,7 +213,7 @@ paths:
     post:
       tags:
         - estuary-testrunner
-      summary: Starts the tests / commands
+      summary: Starts the tests / commands in detached mode and sequential
       consumes:
         - text/plain
       produces:
@@ -230,7 +230,37 @@ paths:
         type: string
       - name: test_file_content
         in: body
-        description: List of commands to run. E.g. make/mvn/sh/npm
+        description: List of commands to run one after the other. E.g. make/mvn/sh/npm
+        required: true
+        schema:
+          $ref: '#/definitions/test_file_content'
+      responses:
+        200:
+          description: test start success
+        404:
+          description: test start failure
+  /testparallel/{id}:
+    post:
+      tags:
+        - estuary-testrunner
+      summary: Starts the tests / commands in detached mode and parallel
+      consumes:
+        - text/plain
+      produces:
+        - application/json
+      parameters:
+      - in: header
+        name: Token
+        type: string
+        required: false
+      - name: id
+        in: path
+        description: Test id set by the user
+        required: true
+        type: string
+      - name: test_file_content
+        in: body
+        description: List of commands to run in parallel. E.g. make/mvn/sh/npm
         required: true
         schema:
           $ref: '#/definitions/test_file_content'
