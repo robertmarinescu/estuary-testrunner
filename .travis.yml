@@ -163,9 +163,9 @@ jobs:
             tags: true
 
         - provider: script
-            script: docker_push_master.sh
-            on:
-              branch: master
+          script: docker_push_master.sh
+          on:
+            branch: master
 
         - provider: releases
           api_key: $GITHUB_TOKEN
