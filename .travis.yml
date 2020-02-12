@@ -158,10 +158,14 @@ jobs:
         - ls -lrt
       deploy:
         - provider: script
-          script: docker_push.sh
+          script: docker_push_tag.sh
           on:
             tags: true
-            branch: master
+
+        - provider: script
+            script: docker_push_master.sh
+            on:
+              branch: master
 
         - provider: releases
           api_key: $GITHUB_TOKEN
