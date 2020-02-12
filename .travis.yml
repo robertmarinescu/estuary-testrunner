@@ -156,7 +156,8 @@ jobs:
         - cp dist/main_flask main-linux
         - \cp dist/start start.py-linux
         - ls -lrt
-        - git add --all
+        - rm -rf dist
+        - rm -rf build
       deploy:
         - provider: script
           script: docker_push_tag.sh
