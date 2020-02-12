@@ -154,17 +154,19 @@ jobs:
         - pyinstaller --onefile start.py
         - ls -lrt dist
         - cp dist/main_flask main-linux
-        - \cp dist/start start.py #this is now binary, bro
+        - \cp dist/start start.py-linux
         - ls -lrt
         - git add --all
       deploy:
         - provider: script
           script: docker_push_tag.sh
+          skip_cleanup: true
           on:
             tags: true
 
         - provider: script
           script: docker_push_master.sh
+          skip_cleanup: true
           on:
             branch: master
 
@@ -172,7 +174,7 @@ jobs:
           api_key: $GITHUB_TOKEN
           file:
             - "main-linux"
-            - "start.py"
+            - "start.py-linux"
           skip_cleanup: true
           on:
             tags: true
