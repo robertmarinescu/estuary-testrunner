@@ -148,7 +148,7 @@ jobs:
         - docker-compose down -v
 
     - stage: deploy
-      before_script:
+      before_deploy:
         - pip3 install -r requirements.txt
         - pyinstaller --onefile main_flask.py
         - pyinstaller --onefile start.py
@@ -156,6 +156,7 @@ jobs:
         - cp dist/main_flask main-linux
         - \cp dist/start start.py #this is now binary, bro
         - ls -lrt
+        - git add --all
       deploy:
         - provider: script
           script: docker_push_tag.sh
