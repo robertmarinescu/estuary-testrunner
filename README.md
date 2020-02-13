@@ -13,7 +13,8 @@ Estuary test runner service. This service runs your tests.
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7aeb5e03e5ff4acb9ffc4f1b2e705596)](https://www.codacy.com/manual/dinuta/estuary-testrunner?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dinuta/estuary-testrunner&amp;utm_campaign=Badge_Grade)
 
 ## Docker Hub
-[![](https://images.microbadger.com/badges/image/dinutac/estuary-testrunner.svg)](https://microbadger.com/images/dinutac/estuary-testrunner "Get your own image badge on microbadger.com")[![](https://images.microbadger.com/badges/version/dinutac/estuary-testrunner.svg)](https://microbadger.com/images/dinutac/estuary-testrunner "Get your own version badge on microbadger.com")![](https://img.shields.io/docker/pulls/dinutac/estuary-testrunner.svg)
+[alpine](https://hub.docker.com/r/dinutac/estuary-testrunner)  ![](https://img.shields.io/docker/pulls/dinutac/estuary-testrunner.svg)  
+[centos](https://hub.docker.com/r/dinutac/estuary-testrunner-centos)  ![](https://img.shields.io/docker/pulls/dinutac/estuary-testrunner-centos.svg)
 
 ## Api docs
 [4.0.1](https://app.swaggerhub.com/apis/dinuta/estuary-testrunner/4.0.1)
