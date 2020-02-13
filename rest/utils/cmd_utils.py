@@ -22,8 +22,8 @@ class CmdUtils:
         [out, err] = p.communicate()
 
         return {
-            "out": "\n".join(out.decode('utf-8').split("\n")[-lines_to_slice:]),
-            "err": "\n".join(err.decode('utf-8').split("\n")[-lines_to_slice:]),
+            "out": "\n".join(out.decode('utf-8').split("\n")[-lines_to_slice:]).rstrip(),
+            "err": "\n".join(err.decode('utf-8').split("\n")[-lines_to_slice:]).rstrip(),
             "code": p.returncode,
             "pid": p.pid,
             "args": p.args
