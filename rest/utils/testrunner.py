@@ -2,8 +2,8 @@ import datetime
 import os
 import platform
 
+from rest.utils.cmd_utils import CmdUtils
 from rest.utils.io_utils import IOUtils
-from utils.cmd_utils import CmdUtils
 
 
 class TestRunner:
