@@ -28,6 +28,14 @@ class IOUtils:
             json.dump(content, f)
 
     @staticmethod
+    def read_dict_from_file(file):
+        try:
+            with open(file, 'r') as f:
+                return dict(json.loads(f.read()))
+        except Exception as e:
+            raise e
+
+    @staticmethod
     def get_filtered_list_regex(input_list, regex):
         return [i.strip() for i in input_list if not regex.search(i)]
 

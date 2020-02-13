@@ -27,6 +27,7 @@ from rest.utils.cmd_utils import CmdUtils
 from rest.utils.fluentd_utils import FluentdUtils
 from rest.utils.io_utils import IOUtils
 from rest.utils.process_utils import ProcessUtils
+from rest.utils.testrunner import TestRunner
 
 app = create_app()
 logger = sender.FluentSender(properties.get('name'), host=properties["fluentd_ip"],
@@ -221,7 +222,6 @@ def get_env(name):
 def test_start(test_id):
     test_id = test_id.strip()
     variables = "testinfo.json"
-    mode = "sequential"
     start_py_path = os.getcwd() + "/start.py"
     os.environ['TEMPLATE'] = "start.py"
     os.environ['VARIABLES'] = variables
@@ -253,8 +253,6 @@ def test_start(test_id):
 
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
-        input_data_list.insert(0, mode)
-        input_data_list.insert(0, variables)
         input_data_list.insert(0, start_py_path)
         cmd_utils.run_cmd_detached(input_data_list)
     except Exception as e:
@@ -468,12 +466,10 @@ def test_stop():
 def execute_command():
     test_id = "none"
     variables = "commandinfo.json"
-    mode = "sequential"
     start_py_path = str(Path(".").absolute()) + "/start.py"
     os.environ['TEMPLATE'] = "start.py"
     os.environ['VARIABLES'] = variables
     io_utils = IOUtils()
-    cmd_utils = CmdUtils()
     http = HttpResponse()
     input_data = request.data.decode('utf-8').strip()
 
@@ -500,10 +496,8 @@ def execute_command():
 
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
-        input_data_list.insert(0, mode)
-        input_data_list.insert(0, variables)
-        input_data_list.insert(0, start_py_path)
-        cmd_utils.run_cmd(input_data_list)
+        testrunner = TestRunner()
+        testrunner.run_commands(EnvConstants.COMMAND_INFO_PATH, input_data_list)
         response = json.loads(io_utils.read_file(EnvConstants.COMMAND_INFO_PATH))
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())

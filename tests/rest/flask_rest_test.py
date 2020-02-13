@@ -20,7 +20,7 @@ class FlaskServerTestCase(unittest.TestCase):
     # server = "http://192.168.100.47:8080"
     # server = "http://" + os.environ.get('SERVER')
 
-    expected_version = "4.0.1"
+    expected_version = "4.0.2"
 
     def setUp(self):
         requests.delete(self.server + "/test")
