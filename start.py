@@ -59,6 +59,7 @@ if __name__ == '__main__':
                 dictionary['commands'][arguments[i].strip()]['status'] = status_in_progress
                 start = datetime.datetime.now()
                 dictionary['commands'][arguments[i].strip()]['startedat'] = str(start)
+                TestRunner.save_dict_to_file(dictionary, testinfo_file)
                 if platform.system() == "Windows":
                     details = TestRunner.run_test(" ".join(arguments[i].split()).split())
                 else:
@@ -69,7 +70,6 @@ if __name__ == '__main__':
                 dictionary['commands'][arguments[i].strip()]['duration'] = round((end - start).total_seconds())
                 dictionary['commands'][arguments[i].strip()]['details'] = details
 
-            TestRunner.save_dict_to_file(dictionary, testinfo_file)
         elif mode == "parallel":
             pass
         else:
