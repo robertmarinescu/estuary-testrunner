@@ -20,7 +20,6 @@ jobs:
     - name: Test windows executable files
       run: |
         pip install pytest
-#        pip install pywin32
         pyinstaller --onefile main_flask.py
         pyinstaller --onefile start.py
         copy /B dist/main_flask.exe main-win.exe
