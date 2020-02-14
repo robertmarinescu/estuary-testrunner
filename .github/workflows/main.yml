@@ -22,12 +22,12 @@ jobs:
       run: |
         pip install pytest
         pyinstaller --onefile main_flask.py
-        copy /B dist/main_flask.exe main-win.exe
+        copy /b dist\main_flask.exe main-win.exe
         rmdir dist /s
         rmdir build /s
         ping -n 5 127.0.0.1
         pyinstaller --onefile start.py
-        copy /B /y dist/start.exe start.py
+        copy /b dist\start.exe start.py
         START /B main-win.exe
         ping -n 5 127.0.0.1
         python -m unittest discover tests/rest-win "*_test.py"
