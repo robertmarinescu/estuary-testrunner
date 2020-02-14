@@ -194,7 +194,7 @@ class FlaskServerTestCase(unittest.TestCase):
     def test_getfile_p(self):
         headers = {
             'Content-type': 'application/json',
-            'File-Path': '/etc/hostname'
+            'File-Path': 'requirements.txt'
         }
 
         response = requests.get(self.server + f"/file", headers=headers)
@@ -205,7 +205,7 @@ class FlaskServerTestCase(unittest.TestCase):
     def test_getfile_n(self):
         headers = {
             'Content-type': 'application/json',
-            'File-Path': 'requirements.txt'
+            'File-Path': 'requirements.txttxttxt'
         }
 
         response = requests.get(self.server + f"/file", headers=headers)
@@ -374,7 +374,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('message').get('duration'), "none")
         for value in commands:
             self.assertEqual(body.get('message').get("commands").get(value).get("status"), "scheduled")
-        time.timeout(int(payload) - 2)
+        time.sleep(int(payload) - 2)
         response = requests.get(self.server + "/test")
         body = response.json()
         self.assertEqual(body.get('message').get("commands").get(commands[0]).get("status"), "in progress")
@@ -383,7 +383,7 @@ class FlaskServerTestCase(unittest.TestCase):
                          None)  # its not yet written
         self.assertIsInstance(body.get('message').get("commands").get(commands[0]).get("details"),
                               dict)  # is empty because the details are filled after exec
-        time.timeout(int(payload) + 2)
+        time.sleep(int(payload) + 2)
         response = requests.get(self.server + "/test")
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -417,7 +417,7 @@ class FlaskServerTestCase(unittest.TestCase):
     def test_gettestinfo_repeated_should_return_always_200_p(self, payload):
         test_id = "102"
         data_payload = f"timeout {payload} \n timeout {payload}"
-        repetitions = 100
+        repetitions = 10
         headers = {'Content-type': 'text/plain'}
 
         response = requests.post(
@@ -436,7 +436,7 @@ class FlaskServerTestCase(unittest.TestCase):
 
     def test_gettestinfo_rm_commands_200_p(self):
         test_id = "101"
-        data_payload = f"rm -rf /etc \n ls -lrt \n colrm doesnotmatter"
+        data_payload = f"rm -rf /etc \n dir \n colrm doesnotmatter"
         commands = list(map(lambda x: x.strip(), data_payload.split("\n")))
         headers = {'Content-type': 'text/plain'}
 
@@ -447,7 +447,7 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'), test_id)
-        time.timeout(1)
+        time.sleep(1)
         response = requests.get(self.server + f"/test")
         body = response.json()
         self.assertEqual(len(body.get('message').get("commands")), len(commands) - 1)
@@ -468,7 +468,7 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'), test_id)
-        time.timeout(2)
+        time.sleep(2)
         response = requests.get(self.server + "/test")
         body = response.json()
         self.assertEqual(body.get('message').get("id"), test_id)
@@ -477,7 +477,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('message').get("commands").get(commands[0]).get("status"), "in progress")
         self.assertEqual(body.get('message').get("commands").get(commands[1]).get("status"), "scheduled")
         self.assertEqual(body.get('message').get("commands").get(commands[2]).get("status"), "scheduled")
-        time.timeout(2)
+        time.sleep(2)
         response = requests.delete(self.server + "/test")
         self.assertEqual(response.status_code, 200)
         body = response.json()
@@ -566,7 +566,7 @@ class FlaskServerTestCase(unittest.TestCase):
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIn("not found",
+        self.assertIn("is not recognized as an internal or external command",
                       body.get('message').get('commands').get(command).get('details').get('err'))
         self.assertEqual(body.get('message').get('commands').get(command).get('details').get('out'), "")
         self.assertIsNotNone(body.get('time'))
@@ -593,7 +593,8 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     def test_executecommand_grep_things_p(self):
-        command = "ls -lrt | grep main"
+        file = "main_flask.py"
+        command = "dir /B | findstr /R {}".format(file)
 
         response = requests.post(
             self.server + f"/command",
@@ -628,7 +629,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertEqual(body.get('message').get('commands').get(command).get('details').get('code'), 0)
-        self.assertEqual(body.get('message').get('commands').get(command).get('details').get('out'), "1\n2")
+        self.assertEqual(body.get('message').get('commands').get(command).get('details').get('out'), "1 \r\n2")
         self.assertEqual(body.get('message').get('commands').get(command).get('details').get('err'), "")
         self.assertGreater(body.get('message').get('commands').get(command).get('details').get('pid'), 0)
         self.assertIsInstance(body.get('message').get('commands').get(command).get('details').get('args'), list)
@@ -677,7 +678,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     def test_executecommand_first_valid_is_executed_n(self):
-        command = "rm -rf /tmp\nls -lrt"
+        command = "rm -rf /tmp\ndir"
         commands = command.split("\n")
 
         response = requests.post(

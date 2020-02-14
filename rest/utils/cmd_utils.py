@@ -8,8 +8,8 @@ class CmdUtils:
         print("Opened pid {} for command {}".format(p.pid, command))
         # [out, err] = p.communicate()
         # return {
-        #     "out": "\n".join(out.decode('utf-8').split("\n")[-100:]),
-        #     "err": "\n".join(err.decode('utf-8').split("\n")[-100:]),
+        #     "out": "\n".join(out.decode("UTF-8", "replace").split("\n")[-100:]),
+        #     "err": "\n".join(err.decode("UTF-8", "replace").split("\n")[-100:]),
         #     "code": p.returncode,
         #     "pid": p.pid,
         #     "args": p.args
@@ -22,8 +22,8 @@ class CmdUtils:
         [out, err] = p.communicate()
 
         return {
-            "out": "\n".join(out.decode('utf-8').split("\n")[-lines_to_slice:]).rstrip(),
-            "err": "\n".join(err.decode('utf-8').split("\n")[-lines_to_slice:]).rstrip(),
+            "out": "\n".join(out.decode("UTF-8", "replace").split("\n")[-lines_to_slice:]).rstrip(),
+            "err": "\n".join(err.decode("UTF-8", "replace").split("\n")[-lines_to_slice:]).rstrip(),
             "code": p.returncode,
             "pid": p.pid,
             "args": p.args

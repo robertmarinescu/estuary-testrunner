@@ -168,7 +168,7 @@ def get_test_info():
 @app.route('/env', methods=['POST'])
 def set_env():
     http = HttpResponse()
-    input_data = request.data.decode("UTF-8").strip()
+    input_data = request.data.decode("UTF-8", "replace").strip()
 
     try:
         input_json = json.loads(input_data)
@@ -227,7 +227,7 @@ def test_start(test_id):
     io_utils = IOUtils()
     cmd_utils = CmdUtils()
     http = HttpResponse()
-    input_data = request.data.decode('utf-8').strip()
+    input_data = request.data.decode("UTF-8", "replace").strip()
 
     if not input_data:
         return Response(json.dumps(http.failure(ApiCodeConstants.EMPTY_REQUEST_BODY_PROVIDED,
@@ -419,7 +419,7 @@ def execute_command():
     io_utils = IOUtils()
     cmd_utils = CmdUtils()
     http = HttpResponse()
-    input_data = request.data.decode('utf-8').strip()
+    input_data = request.data.decode("UTF-8", "replace").strip()
 
     if not input_data:
         return Response(json.dumps(http.failure(ApiCodeConstants.EMPTY_REQUEST_BODY_PROVIDED,

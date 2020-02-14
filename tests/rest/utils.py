@@ -32,10 +32,10 @@ class Utils:
         result = subprocess.Popen(["hostname", "--fqdn"], stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
         out, err = result.communicate()
-        return [out.decode('utf-8'), err.decode('utf-8')]
+        return [out.decode("UTF-8", "replace"), err.decode("UTF-8", "replace")]
 
     def run_cmd(self, command):
         result = subprocess.Popen(command, stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
         out, err = result.communicate()
-        return [out.decode('utf-8'), err.decode('utf-8')]
+        return [out.decode("UTF-8", "replace"), err.decode("UTF-8", "replace")]
