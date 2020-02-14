@@ -22,12 +22,10 @@ jobs:
     - name: Test windows executable files
       run: |
         pip install pytest
-        pyinstaller --onefile main_flask.py
+        pyinstaller --onefile --clean --log-level=DEBUG main_flask.py
         Copy-Item "dist\main_flask.exe" -Destination "main-win.exe"
-        Remove-Item 'dist' -Recurse
-        Remove-Item 'build' -Recurse
         ping -n 5 127.0.0.1
-        pyinstaller --onefile start.py
+        pyinstaller --onefile --clean --log-level=DEBUG start.py
         Copy-Item "dist\start.exe" -Destination "start.py"
         Start-Process .\main-win.exe
         ping -n 5 127.0.0.1
