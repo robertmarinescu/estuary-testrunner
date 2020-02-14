@@ -17,10 +17,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pypiwin32
     - name: Test windows executable files
       run: |
         pip install pytest
         pyinstaller --onefile main_flask.py
+        timeout 5
         pyinstaller --onefile start.py
         copy /B dist/main_flask.exe main-win.exe
         copy /B /y dist/start.exe start.py

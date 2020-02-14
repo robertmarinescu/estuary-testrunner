@@ -13,4 +13,3 @@ fluent-logger
 Jinja2
 jinja2-cli
 psutil
-pypiwin32
