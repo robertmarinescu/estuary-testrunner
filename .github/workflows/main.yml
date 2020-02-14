@@ -21,8 +21,6 @@ jobs:
     - name: Test windows executable files
       run: |
         pip install pytest
-        pyinstaller --onefile --clean --log-level=DEBUG start.py
-        Copy-Item "dist\start.exe" -Destination "start.py"
         pyinstaller --onefile --clean --log-level=DEBUG main_flask.py
         Copy-Item "dist\main_flask.exe" -Destination "main-win.exe"
         Start-Process .\main-win.exe
