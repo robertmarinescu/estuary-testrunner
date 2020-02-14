@@ -18,7 +18,6 @@ if __name__ == '__main__':
         raise Exception("Error: Expecting at least {} args. Got {}, args={}".format(min_args, len(sys.argv), sys.argv))
     try:
         testrunner = TestRunner()
-        # dictionary['start_pid'] = os.getpid()
         testrunner.run_commands(json_file, sys.argv[1:])
         dictionary = testrunner.read_dict_from_file(json_file)
     except Exception as e:
