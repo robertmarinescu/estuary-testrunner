@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import platform
 import time
 import unittest
 import zipfile
@@ -16,7 +17,7 @@ from tests.rest.utils import Utils
 
 
 class FlaskServerTestCase(unittest.TestCase):
-    server = "http://localhost:8080"
+    server = "http://127.0.0.1:8080"
     # server = "http://192.168.100.47:8080"
     # server = "http://" + os.environ.get('SERVER')
 
@@ -107,7 +108,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
         self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
-    @unittest.skipIf(str(os.environ.get('SKIP_ON_VM')) == "true", "Skip on VM")
+    @unittest.skipIf(platform.system() == "Windows", "Skip on Win")
     def test_swagger_endpoint(self):
         response = requests.get(self.server + "/api/docs")
 
@@ -115,7 +116,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(body.find("html") >= 0)
 
-    @unittest.skipIf(str(os.environ.get('SKIP_ON_VM')) == "true", "Skip on VM")
+    @unittest.skipIf(platform.system() == "Windows", "Skip on Win")
     def test_swagger_endpoint_swagger_still_accesible(self):
         headers = {'Token': 'whateverinvalid'}
         response = requests.get(self.server + "/api/docs", headers=headers)
@@ -178,7 +179,7 @@ class FlaskServerTestCase(unittest.TestCase):
     @parameterized.expand([
         ("standalone.yml", "variables.yml")
     ])
-    @unittest.skipIf(str(os.environ.get('SKIP_ON_VM')) == "true", "Skip on VM")
+    @unittest.skipIf(platform.system() == "Windows", "Skip on Win")
     def test_rendwithenv_endpoint(self, template, variables):
         payload = {'DATABASE': 'mysql56', 'IMAGE': 'latest'}
         headers = {'Content-type': 'application/json'}
@@ -405,7 +406,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertNotEqual(body.get('message').get("commands").get(commands[1]).get("startedat"), "none")
         self.assertNotEqual(body.get('message').get("commands").get(commands[1]).get("finishedat"), "none")
         self.assertNotEqual(body.get('message').get("commands").get(commands[1]).get("duration"), "none")
-        self.assertIn("invalid_command:",
+        self.assertIn("is not recognized as an internal or external command",
                       body.get('message').get("commands").get(commands[1]).get("details").get("err"))
         self.assertIsInstance(body.get('message').get("commands").get(commands[1]).get("details").get("pid"), int)
         self.assertIsInstance(body.get('message').get("commands").get(commands[1]).get("details").get("code"), int)
@@ -461,6 +462,9 @@ class FlaskServerTestCase(unittest.TestCase):
         data_payload = f"timeout 7 \n timeout 3600 \n timeout 3601"
         commands = list(map(lambda x: x.strip(), data_payload.split("\n")))
         headers = {'Content-type': 'text/plain'}
+
+        response = requests.delete(self.server + "/test")
+        self.assertEqual(response.status_code, 200)
 
         response = requests.post(
             self.server + f"/test/{test_id}",

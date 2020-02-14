@@ -18,6 +18,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pypiwin32
+        pip install https://github.com/pyinstaller/pyinstaller/archive/develop.tar.gz
     - name: Test windows executable files
       run: |
         pip install pytest

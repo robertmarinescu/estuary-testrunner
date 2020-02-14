@@ -16,7 +16,7 @@ from tests.rest.utils import Utils
 
 
 class FlaskServerTestCase(unittest.TestCase):
-    server = "http://localhost:8080"
+    server = "http://127.0.0.1:8080"
     # server = "http://192.168.100.47:8080"
     # server = "http://" + os.environ.get('SERVER')
 
