@@ -45,8 +45,8 @@ jobs:
           --name estuary-testrunner
           dinutac/estuary-testrunner:latest
       script:
-        - docker exec estuary-testrunner python3 -m unittest discover /home/dev/scripts *_test.py
-        - docker exec estuary-testrunner python3 -m unittest discover /home/dev/scripts "render_test.py"
+        - docker exec estuary-testrunner python3 -m unittest discover /home/dev/scripts/tests/rest *_test.py
+        - docker exec estuary-testrunner python3 -m unittest discover /home/dev/scripts/tests/rest "render_test.py"
 
       #run executable tests. exec with pyinstaller
     - language: python
