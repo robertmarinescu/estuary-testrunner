@@ -213,7 +213,7 @@ paths:
     post:
       tags:
         - estuary-testrunner
-      summary: Starts the tests / commands in detached mode and sequential
+      summary: Starts the tests / commands in detached mode and sequentially
       consumes:
         - text/plain
       produces:
@@ -236,9 +236,9 @@ paths:
           $ref: '#/definitions/test_file_content'
       responses:
         200:
-          description: test start success
+          description: commands start success
         404:
-          description: test start failure
+          description: commands start failure
   /testparallel/{id}:
     post:
       tags:
@@ -260,15 +260,15 @@ paths:
         type: string
       - name: test_file_content
         in: body
-        description: List of commands to run in parallel. E.g. make/mvn/sh/npm
+        description: List of commands to run in parallel. E.g. ls/mvn/npm
         required: true
         schema:
           $ref: '#/definitions/test_file_content'
       responses:
         200:
-          description: test start success
+          description: commands start success
         404:
-          description: test start failure
+          description: commands start failure
   /test:
     get:
       tags:
@@ -385,7 +385,7 @@ paths:
     post:
       tags:
         - estuary-testrunner
-      summary: Starts one single command in blocking mode. The Api can timeout
+      summary: Starts multiple commands in blocking mode sequentially. The API can timeout.
       consumes:
         - text/plain
       produces:
@@ -395,17 +395,42 @@ paths:
         name: Token
         type: string
         required: false
-      - name: command
+      - name: commands
         in: body
-        description: Command to run. E.g. ls -lrt
+        description: Commands to run. E.g. ls -lrt
         required: true
         schema:
-          $ref: '#/definitions/command_content'
+          $ref: '#/definitions/commands_content'
       responses:
         200:
-          description: test start success
+          description: commands start success
         404:
-          description: test start failure
+          description: commands start failure
+  /commandparallel:
+    post:
+      tags:
+        - estuary-testrunner
+      summary: Starts multiple commands in blocking mode in parallel. The API can timeout.
+      consumes:
+        - text/plain
+      produces:
+        - application/json
+      parameters:
+      - in: header
+        name: Token
+        type: string
+        required: false
+      - name: commands
+        in: body
+        description: Commands to run. E.g. ls -lrt
+        required: true
+        schema:
+          $ref: '#/definitions/commands_content'
+      responses:
+        200:
+          description: commands start success
+        404:
+          description: commands start failure
 definitions:
     envvar:
       type: object
@@ -420,11 +445,12 @@ definitions:
       example: |
         mvn test -Dtype=Prepare
         mvn test -Dtype=ExecuteTests
-    command_content:
+    commands_content:
       type: string
       minLength: 3
       example: |
         ls -lrt
+        cat config.json
 externalDocs:
   description: Find out more on github
   url: https://github.com/dinuta/estuary-testrunner

@@ -21,7 +21,7 @@ jobs:
           name: "build main-win"
       - run:
           command: Copy-Item "dist\main_flask.exe" -Destination "main-win.exe"
-          name: "copy main-wi"
+          name: "copy main-win"
       - run:
           command: pyinstaller --onefile --clean start.py
           name: "build start.py"

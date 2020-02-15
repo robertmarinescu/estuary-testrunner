@@ -28,6 +28,7 @@ from rest.utils.fluentd_utils import FluentdUtils
 from rest.utils.io_utils import IOUtils
 from rest.utils.process_utils import ProcessUtils
 from rest.utils.testrunner import TestRunner
+from rest.utils.testrunner_parallel import TestRunnerParallel
 
 app = create_app()
 logger = sender.FluentSender(properties.get('name'), host=properties["fluentd_ip"],
@@ -253,6 +254,7 @@ def test_start(test_id):
 
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
+        input_data_list.insert(0, "sequential")
         input_data_list.insert(0, start_py_path)
         cmd_utils.run_cmd_detached(input_data_list)
     except Exception as e:
@@ -272,7 +274,6 @@ def test_start(test_id):
 def test_start_parallel(test_id):
     test_id = test_id.strip()
     variables = "testinfo.json"
-    mode = "parallel"
     start_py_path = os.getcwd() + "/start.py"
     os.environ['TEMPLATE'] = "start.py"
     os.environ['VARIABLES'] = variables
@@ -304,8 +305,7 @@ def test_start_parallel(test_id):
 
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
-        input_data_list.insert(0, mode)
-        input_data_list.insert(0, variables)
+        input_data_list.insert(0, "parallel")
         input_data_list.insert(0, start_py_path)
         cmd_utils.run_cmd_detached(input_data_list)
     except Exception as e:
@@ -550,10 +550,8 @@ def execute_commandparallel():
 
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
-        input_data_list.insert(0, mode)
-        input_data_list.insert(0, variables)
-        input_data_list.insert(0, start_py_path)
-        cmd_utils.run_cmd(input_data_list)
+        testrunner = TestRunnerParallel()
+        testrunner.run_commands(EnvConstants.COMMAND_INFO_PATH, input_data_list)
         response = json.loads(io_utils.read_file(EnvConstants.COMMAND_INFO_PATH))
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
