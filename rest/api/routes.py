@@ -518,12 +518,10 @@ def execute_command():
 def execute_commandparallel():
     test_id = "none"
     variables = "commandinfo.json"
-    mode = "parallel"
     start_py_path = str(Path(".").absolute()) + "/start.py"
     os.environ['TEMPLATE'] = "start.py"
     os.environ['VARIABLES'] = variables
     io_utils = IOUtils()
-    cmd_utils = CmdUtils()
     http = HttpResponse()
     input_data = request.data.decode("UTF-8", "replace").strip()
 

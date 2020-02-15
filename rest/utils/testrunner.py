@@ -19,20 +19,17 @@ class TestRunner:
             dictionary = self.__io_utils.read_dict_from_file(json_file)
             dictionary['start_pid'] = os.getpid()
             start_total = datetime.datetime.now()
-            for i in range(0, len(commands)):
-                dictionary['commands'][commands[i].strip()]['status'] = status_in_progress
+            for command in commands:
+                dictionary['commands'][command.strip()]['status'] = status_in_progress
                 start = datetime.datetime.now()
-                dictionary['commands'][commands[i].strip()]['startedat'] = str(start)
+                dictionary['commands'][command.strip()]['startedat'] = str(start)
                 self.__io_utils.write_to_file_dict(json_file, dictionary)
-                if platform.system() == "Windows":
-                    details = self.__cmd_utils.run_cmd(commands[i].split())
-                else:
-                    details = self.__cmd_utils.run_cmd([commands[i].strip()])
-                dictionary['commands'][commands[i].strip()]['status'] = status_finished
+                details = self.__cmd_utils.run_cmd(command.split())
+                dictionary['commands'][command.strip()]['status'] = status_finished
                 end = datetime.datetime.now()
-                dictionary['commands'][commands[i].strip()]['finishedat'] = str(end)
-                dictionary['commands'][commands[i].strip()]['duration'] = round((end - start).total_seconds())
-                dictionary['commands'][commands[i].strip()]['details'] = details
+                dictionary['commands'][command.strip()]['finishedat'] = str(end)
+                dictionary['commands'][command.strip()]['duration'] = round((end - start).total_seconds())
+                dictionary['commands'][command.strip()]['details'] = details
 
             dictionary['finished'] = "true"
             dictionary['started'] = "false"
