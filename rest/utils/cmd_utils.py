@@ -18,7 +18,7 @@ class CmdUtils:
     @staticmethod
     def run_cmd(command):
         lines_to_slice = 500
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         [out, err] = p.communicate()
 
         return {

@@ -19,7 +19,10 @@ class TestRunnerParallel:
         dictionary['commands'][command.strip()]['status'] = status_in_progress
         start = datetime.datetime.now()
         dictionary['commands'][command.strip()]['startedat'] = str(start)
-        details = self.__cmd_utils.run_cmd(command.split())
+        if platform.system() == "Windows":
+            details = self.__cmd_utils.run_cmd(command.split())
+        else:
+            details = self.__cmd_utils.run_cmd([command.strip()])
         dictionary['commands'][command.strip()]['status'] = status_finished
         end = datetime.datetime.now()
         dictionary['commands'][command.strip()]['finishedat'] = str(end)
