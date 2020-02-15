@@ -307,7 +307,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     @parameterized.expand([
-        "timeout 1 \n timeout 2 \n timeout 3", "mvn -h", "alabalaportocala"
+        "ping -n 1 127.0.0.1 \n ping -n 2 127.0.0.1 \n ping -n 3 127.0.0.1", "mvn -h", "alabalaportocala"
     ])
     def test_teststart_p(self, payload):
         test_id = "106"
@@ -352,7 +352,7 @@ class FlaskServerTestCase(unittest.TestCase):
     ])
     def test_gettestinfo_p(self, payload):
         test_id = "103"
-        data_payload = f" timeout {payload} \n invalid_command"
+        data_payload = f" ping -n {payload} 127.0.0.1 \n invalid_command"
         commands = list(map(lambda x: x.strip(), data_payload.split("\n")))
         headers = {'Content-type': 'text/plain'}
 
@@ -417,7 +417,7 @@ class FlaskServerTestCase(unittest.TestCase):
     ])
     def test_gettestinfo_repeated_should_return_always_200_p(self, payload):
         test_id = "102"
-        data_payload = f"timeout {payload} \n timeout {payload}"
+        data_payload = f"ping -n  {payload} 127.0.0.1\n ping -n {payload} 127.0.0.1"
         repetitions = 10
         headers = {'Content-type': 'text/plain'}
 
@@ -459,7 +459,7 @@ class FlaskServerTestCase(unittest.TestCase):
 
     def test_teststop_p(self):
         test_id = "100"
-        data_payload = f"timeout 7 \n timeout 3600 \n timeout 3601"
+        data_payload = f"ping -n 7 127.0.0.1\n ping -n 3600 127.0.0.1\n ping -n 3601 127.0.0.1"
         commands = list(map(lambda x: x.strip(), data_payload.split("\n")))
         headers = {'Content-type': 'text/plain'}
 
@@ -472,7 +472,7 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'), test_id)
-        time.sleep(2)
+        time.sleep(4)
         response = requests.get(self.server + "/test")
         body = response.json()
         self.assertEqual(body.get('message').get("id"), test_id)
@@ -703,7 +703,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     def test_executecommand_timeout_from_client_n(self):
-        command = "timeout 20"
+        command = "ping -n 20 127.0.0.1"
 
         try:
             requests.post(
