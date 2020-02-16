@@ -27,8 +27,6 @@ from rest.utils.cmd_utils import CmdUtils
 from rest.utils.fluentd_utils import FluentdUtils
 from rest.utils.io_utils import IOUtils
 from rest.utils.process_utils import ProcessUtils
-from rest.utils.testrunner import TestRunner
-from rest.utils.testrunner_parallel import TestRunnerParallel
 
 app = create_app()
 logger = sender.FluentSender(properties.get('name'), host=properties["fluentd_ip"],
@@ -223,7 +221,7 @@ def get_env(name):
 def test_start(test_id):
     test_id = test_id.strip()
     variables = "testinfo.json"
-    start_py_path = os.getcwd() + "/start.py"
+    start_py_path = str(Path(".").absolute()) + "/start.py"
     os.environ['TEMPLATE'] = "start.py"
     os.environ['VARIABLES'] = variables
     io_utils = IOUtils()
@@ -239,6 +237,7 @@ def test_start(test_id):
     try:
         input_data_list = io_utils.get_filtered_list_regex(input_data.split("\n"),
                                                            re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
+        input_data_list = list(map(lambda x: x.strip(), input_data_list))
         input_data_dict = dict.fromkeys(input_data_list, {"status": "scheduled", "details": {}})
         test_info_init["started"] = "true"
         test_info_init["id"] = test_id
@@ -255,7 +254,9 @@ def test_start(test_id):
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
         input_data_list.insert(0, "sequential")
+        input_data_list.insert(0, variables)
         input_data_list.insert(0, start_py_path)
+        # input_data_list.insert(0, "python")
         cmd_utils.run_cmd_detached(input_data_list)
     except Exception as e:
         result = "Exception({0})".format(e.__str__())
@@ -274,7 +275,7 @@ def test_start(test_id):
 def test_start_parallel(test_id):
     test_id = test_id.strip()
     variables = "testinfo.json"
-    start_py_path = os.getcwd() + "/start.py"
+    start_py_path = str(Path(".").absolute()) + "/start.py"
     os.environ['TEMPLATE'] = "start.py"
     os.environ['VARIABLES'] = variables
     io_utils = IOUtils()
@@ -290,6 +291,7 @@ def test_start_parallel(test_id):
     try:
         input_data_list = io_utils.get_filtered_list_regex(input_data.split("\n"),
                                                            re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
+        input_data_list = list(map(lambda x: x.strip(), input_data_list))
         input_data_dict = dict.fromkeys(input_data_list, {"status": "scheduled", "details": {}})
         test_info_init["started"] = "true"
         test_info_init["id"] = test_id
@@ -306,7 +308,9 @@ def test_start_parallel(test_id):
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
         input_data_list.insert(0, "parallel")
+        input_data_list.insert(0, variables)
         input_data_list.insert(0, start_py_path)
+        # input_data_list.insert(0, "python")
         cmd_utils.run_cmd_detached(input_data_list)
     except Exception as e:
         result = "Exception({0})".format(e.__str__())
@@ -470,6 +474,7 @@ def execute_command():
     os.environ['TEMPLATE'] = "start.py"
     os.environ['VARIABLES'] = variables
     io_utils = IOUtils()
+    cmd_utils = CmdUtils()
     http = HttpResponse()
     input_data = request.data.decode("UTF-8", "replace").strip()
 
@@ -481,6 +486,7 @@ def execute_command():
     try:
         input_data_list = io_utils.get_filtered_list_regex(input_data.split("\n"),
                                                            re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
+        input_data_list = list(map(lambda x: x.strip(), input_data_list))
         input_data_dict = dict.fromkeys(input_data_list, {"status": "scheduled", "details": {}})
         test_info_init["started"] = "true"
         test_info_init["id"] = test_id
@@ -496,8 +502,11 @@ def execute_command():
 
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
-        testrunner = TestRunner()
-        testrunner.run_commands(EnvConstants.COMMAND_INFO_PATH, input_data_list)
+        input_data_list.insert(0, "sequential")
+        input_data_list.insert(0, variables)
+        input_data_list.insert(0, start_py_path)
+        # input_data_list.insert(0, "python")
+        cmd_utils.run_cmd_shell_false(input_data_list)
         response = json.loads(io_utils.read_file(EnvConstants.COMMAND_INFO_PATH))
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
@@ -515,13 +524,14 @@ def execute_command():
 
 
 @app.route('/commandparallel', methods=['POST', 'PUT'])
-def execute_commandparallel():
+def execute_command_parallel():
     test_id = "none"
     variables = "commandinfo.json"
     start_py_path = str(Path(".").absolute()) + "/start.py"
     os.environ['TEMPLATE'] = "start.py"
     os.environ['VARIABLES'] = variables
     io_utils = IOUtils()
+    cmd_utils = CmdUtils()
     http = HttpResponse()
     input_data = request.data.decode("UTF-8", "replace").strip()
 
@@ -533,6 +543,7 @@ def execute_commandparallel():
     try:
         input_data_list = io_utils.get_filtered_list_regex(input_data.split("\n"),
                                                            re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
+        input_data_list = list(map(lambda x: x.strip(), input_data_list))
         input_data_dict = dict.fromkeys(input_data_list, {"status": "scheduled", "details": {}})
         test_info_init["started"] = "true"
         test_info_init["id"] = test_id
@@ -548,8 +559,11 @@ def execute_commandparallel():
 
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
-        testrunner = TestRunnerParallel()
-        testrunner.run_commands(EnvConstants.COMMAND_INFO_PATH, input_data_list)
+        input_data_list.insert(0, "parallel")
+        input_data_list.insert(0, variables)
+        input_data_list.insert(0, start_py_path)
+        # input_data_list.insert(0, "python")
+        cmd_utils.run_cmd_shell_false(input_data_list)
         response = json.loads(io_utils.read_file(EnvConstants.COMMAND_INFO_PATH))
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())

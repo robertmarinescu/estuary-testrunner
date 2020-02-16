@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import platform
 
@@ -16,30 +17,32 @@ class TestRunner:
         status_finished = "finished"
         status_in_progress = "in progress"
         try:
-            dictionary = self.__io_utils.read_dict_from_file(json_file)
-            dictionary['start_pid'] = os.getpid()
+            command_dict = self.__io_utils.read_dict_from_file(json_file)
+            print("Input json is: " + json.dumps(command_dict) + "\n")
+            command_dict['start_pid'] = os.getpid()
             start_total = datetime.datetime.now()
             for command in commands:
-                dictionary['commands'][command.strip()]['status'] = status_in_progress
+                command_dict['commands'][command.strip()] = {}
+                command_dict['commands'][command.strip()]['status'] = status_in_progress
                 start = datetime.datetime.now()
-                dictionary['commands'][command.strip()]['startedat'] = str(start)
-                self.__io_utils.write_to_file_dict(json_file, dictionary)
+                command_dict['commands'][command.strip()]['startedat'] = str(start)
+                self.__io_utils.write_to_file_dict(json_file, command_dict)
                 if platform.system() == "Windows":
-                    details = self.__cmd_utils.run_cmd(command.split())
+                    details = self.__cmd_utils.run_cmd_shell_true(command.split())
                 else:
-                    details = self.__cmd_utils.run_cmd([command.strip()])
-                dictionary['commands'][command.strip()]['status'] = status_finished
+                    details = self.__cmd_utils.run_cmd_shell_true([command.strip()])
+                command_dict['commands'][command.strip()]['status'] = status_finished
                 end = datetime.datetime.now()
-                dictionary['commands'][command.strip()]['finishedat'] = str(end)
-                dictionary['commands'][command.strip()]['duration'] = round((end - start).total_seconds())
-                dictionary['commands'][command.strip()]['details'] = details
+                command_dict['commands'][command.strip()]['finishedat'] = str(end)
+                command_dict['commands'][command.strip()]['duration'] = round((end - start).total_seconds())
+                command_dict['commands'][command.strip()]['details'] = details
 
-            dictionary['finished'] = "true"
-            dictionary['started'] = "false"
+            command_dict['finished'] = "true"
+            command_dict['started'] = "false"
             end_total = datetime.datetime.now()
-            dictionary['finishedat'] = str(end_total)
-            dictionary['duration'] = round((end_total - start_total).total_seconds())
-            self.__io_utils.write_to_file_dict(json_file, dictionary)
+            command_dict['finishedat'] = str(end_total)
+            command_dict['duration'] = round((end_total - start_total).total_seconds())
+            self.__io_utils.write_to_file_dict(json_file, command_dict)
 
         except Exception as e:
             raise e

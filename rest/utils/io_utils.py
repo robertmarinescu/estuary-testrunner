@@ -18,6 +18,11 @@ class IOUtils:
             f.write(content)
 
     @staticmethod
+    def append_to_file(file, content=""):
+        with open(file, 'a') as f:
+            f.write(content + "\n")
+
+    @staticmethod
     def write_to_file_binary(file, content=""):
         with open(file, 'wb') as f:
             f.write(content)

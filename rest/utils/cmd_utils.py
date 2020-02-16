@@ -2,6 +2,7 @@ import subprocess
 
 
 class CmdUtils:
+
     @staticmethod
     def run_cmd_detached(command):
         p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -16,9 +17,18 @@ class CmdUtils:
         # }
 
     @staticmethod
-    def run_cmd(command):
-        lines_to_slice = 500
+    def run_cmd_shell_true(command):
         p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        return CmdUtils.__get_subprocess_data(p)
+
+    @staticmethod
+    def run_cmd_shell_false(command):
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return CmdUtils.__get_subprocess_data(p)
+
+    @staticmethod
+    def __get_subprocess_data(p):
+        lines_to_slice = 500
         [out, err] = p.communicate()
 
         return {
