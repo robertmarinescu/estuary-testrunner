@@ -7,9 +7,9 @@ pytest-cov
 flask_swagger_ui
 requests_toolbelt
 py_eureka_client
-pyinstaller
 flask_cors
 fluent-logger
 Jinja2
 jinja2-cli
 psutil
+pyinstaller

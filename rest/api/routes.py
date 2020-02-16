@@ -168,7 +168,7 @@ def get_test_info():
 @app.route('/env', methods=['POST'])
 def set_env():
     http = HttpResponse()
-    input_data = request.data.decode("UTF-8").strip()
+    input_data = request.data.decode("UTF-8", "replace").strip()
 
     try:
         input_json = json.loads(input_data)
@@ -221,13 +221,13 @@ def get_env(name):
 def test_start(test_id):
     test_id = test_id.strip()
     variables = "testinfo.json"
-    start_py_path = os.getcwd() + "/start.py"
+    start_py_path = str(Path(".").absolute()) + "/start.py"
     os.environ['TEMPLATE'] = "start.py"
     os.environ['VARIABLES'] = variables
     io_utils = IOUtils()
     cmd_utils = CmdUtils()
     http = HttpResponse()
-    input_data = request.data.decode('utf-8').strip()
+    input_data = request.data.decode("UTF-8", "replace").strip()
 
     if not input_data:
         return Response(json.dumps(http.failure(ApiCodeConstants.EMPTY_REQUEST_BODY_PROVIDED,
@@ -237,6 +237,7 @@ def test_start(test_id):
     try:
         input_data_list = io_utils.get_filtered_list_regex(input_data.split("\n"),
                                                            re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
+        input_data_list = list(map(lambda x: x.strip(), input_data_list))
         input_data_dict = dict.fromkeys(input_data_list, {"status": "scheduled", "details": {}})
         test_info_init["started"] = "true"
         test_info_init["id"] = test_id
@@ -252,8 +253,10 @@ def test_start(test_id):
 
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
+        input_data_list.insert(0, "sequential")
         input_data_list.insert(0, variables)
         input_data_list.insert(0, start_py_path)
+        # input_data_list.insert(0, "python")
         cmd_utils.run_cmd_detached(input_data_list)
     except Exception as e:
         result = "Exception({0})".format(e.__str__())
@@ -419,7 +422,7 @@ def execute_command():
     io_utils = IOUtils()
     cmd_utils = CmdUtils()
     http = HttpResponse()
-    input_data = request.data.decode('utf-8').strip()
+    input_data = request.data.decode("UTF-8", "replace").strip()
 
     if not input_data:
         return Response(json.dumps(http.failure(ApiCodeConstants.EMPTY_REQUEST_BODY_PROVIDED,
@@ -429,6 +432,7 @@ def execute_command():
     try:
         input_data_list = io_utils.get_filtered_list_regex(input_data.split("\n"),
                                                            re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
+        input_data_list = list(map(lambda x: x.strip(), input_data_list))
         input_data_dict = dict.fromkeys(input_data_list, {"status": "scheduled", "details": {}})
         test_info_init["started"] = "true"
         test_info_init["id"] = test_id
@@ -444,9 +448,11 @@ def execute_command():
 
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
+        input_data_list.insert(0, "sequential")
         input_data_list.insert(0, variables)
         input_data_list.insert(0, start_py_path)
-        cmd_utils.run_cmd(input_data_list)
+        # input_data_list.insert(0, "python")
+        cmd_utils.run_cmd_shell_false(input_data_list)
         response = json.loads(io_utils.read_file(EnvConstants.COMMAND_INFO_PATH))
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())

@@ -18,6 +18,11 @@ class IOUtils:
             f.write(content)
 
     @staticmethod
+    def append_to_file(file, content=""):
+        with open(file, 'a') as f:
+            f.write(content + "\n")
+
+    @staticmethod
     def write_to_file_binary(file, content=""):
         with open(file, 'wb') as f:
             f.write(content)
@@ -28,8 +33,20 @@ class IOUtils:
             json.dump(content, f)
 
     @staticmethod
+    def read_dict_from_file(file):
+        try:
+            with open(file, 'r') as f:
+                return dict(json.loads(f.read()))
+        except Exception as e:
+            raise e
+
+    @staticmethod
     def get_filtered_list_regex(input_list, regex):
-        return [i.strip() for i in input_list if not regex.search(i)]
+        filtered_list = []
+        for elem in input_list:
+            if not regex.search(elem) and elem.strip() != "":
+                filtered_list.append(elem.strip())
+        return filtered_list
 
     @staticmethod
     def read_file(file):

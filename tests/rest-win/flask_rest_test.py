@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os
+import platform
 import time
 import unittest
 import zipfile
@@ -107,7 +107,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
         self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
-    @unittest.skipIf(str(os.environ.get('SKIP_ON_VM')) == "true", "Skip on VM")
+    @unittest.skipIf(platform.system() == "Windows", "Skip on Win")
     def test_swagger_endpoint(self):
         response = requests.get(self.server + "/api/docs")
 
@@ -115,7 +115,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(body.find("html") >= 0)
 
-    @unittest.skipIf(str(os.environ.get('SKIP_ON_VM')) == "true", "Skip on VM")
+    @unittest.skipIf(platform.system() == "Windows", "Skip on Win")
     def test_swagger_endpoint_swagger_still_accesible(self):
         headers = {'Token': 'whateverinvalid'}
         response = requests.get(self.server + "/api/docs", headers=headers)
@@ -178,7 +178,7 @@ class FlaskServerTestCase(unittest.TestCase):
     @parameterized.expand([
         ("standalone.yml", "variables.yml")
     ])
-    @unittest.skipIf(str(os.environ.get('SKIP_ON_VM')) == "true", "Skip on VM")
+    @unittest.skipIf(platform.system() == "Windows", "Skip on Win")
     def test_rendwithenv_endpoint(self, template, variables):
         payload = {'DATABASE': 'mysql56', 'IMAGE': 'latest'}
         headers = {'Content-type': 'application/json'}
@@ -194,7 +194,7 @@ class FlaskServerTestCase(unittest.TestCase):
     def test_getfile_p(self):
         headers = {
             'Content-type': 'application/json',
-            'File-Path': '/etc/hostname'
+            'File-Path': 'requirements.txt'
         }
 
         response = requests.get(self.server + f"/file", headers=headers)
@@ -205,7 +205,7 @@ class FlaskServerTestCase(unittest.TestCase):
     def test_getfile_n(self):
         headers = {
             'Content-type': 'application/json',
-            'File-Path': '/etc/dummy'
+            'File-Path': 'requirements.txttxttxt'
         }
 
         response = requests.get(self.server + f"/file", headers=headers)
@@ -238,7 +238,7 @@ class FlaskServerTestCase(unittest.TestCase):
         utils = Utils()
         headers = {
             'Content-type': 'application/json',
-            'Folder-Path': '/tmp'
+            'Folder-Path': 'inputs'
         }
 
         response = requests.get(
@@ -253,7 +253,7 @@ class FlaskServerTestCase(unittest.TestCase):
             self.assertTrue(responsezip.testzip() is None)
 
     def test_getfolder_file_not_folder_n(self):
-        container_folder = '/etc/hostname'
+        container_folder = 'requirements.txt'
         headers = {
             'Content-type': 'application/json',
             'Folder-Path': container_folder
@@ -306,7 +306,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     @parameterized.expand([
-        "sleep 1 \n sleep 2 \n sleep 3", "mvn -h", "alabalaportocala"
+        "ping -n 1 127.0.0.1 \n ping -n 2 127.0.0.1 \n ping -n 3 127.0.0.1", "mvn -h", "alabalaportocala"
     ])
     def test_teststart_p(self, payload):
         test_id = "106"
@@ -351,7 +351,7 @@ class FlaskServerTestCase(unittest.TestCase):
     ])
     def test_gettestinfo_p(self, payload):
         test_id = "103"
-        data_payload = f" sleep {payload} \n invalid_command"
+        data_payload = f" ping -n {payload} 127.0.0.1 \n invalid_command"
         commands = list(map(lambda x: x.strip(), data_payload.split("\n")))
         headers = {'Content-type': 'text/plain'}
 
@@ -405,7 +405,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertNotEqual(body.get('message').get("commands").get(commands[1]).get("startedat"), "none")
         self.assertNotEqual(body.get('message').get("commands").get(commands[1]).get("finishedat"), "none")
         self.assertNotEqual(body.get('message').get("commands").get(commands[1]).get("duration"), "none")
-        self.assertIn("invalid_command:",
+        self.assertIn("is not recognized as an internal or external command",
                       body.get('message').get("commands").get(commands[1]).get("details").get("err"))
         self.assertIsInstance(body.get('message').get("commands").get(commands[1]).get("details").get("pid"), int)
         self.assertIsInstance(body.get('message').get("commands").get(commands[1]).get("details").get("code"), int)
@@ -416,8 +416,8 @@ class FlaskServerTestCase(unittest.TestCase):
     ])
     def test_gettestinfo_repeated_should_return_always_200_p(self, payload):
         test_id = "102"
-        data_payload = f"sleep {payload} \n sleep {payload}"
-        repetitions = 100
+        data_payload = f"ping -n  {payload} 127.0.0.1\n ping -n {payload} 127.0.0.1"
+        repetitions = 10
         headers = {'Content-type': 'text/plain'}
 
         response = requests.post(
@@ -434,33 +434,14 @@ class FlaskServerTestCase(unittest.TestCase):
         end = time.time()
         print(f"made {repetitions} gettestinfo repetitions in {end - start} s")
 
-    def test_gettestinfo_rm_commands_200_p(self):
-        test_id = "101"
-        data_payload = f"rm -rf /etc \n ls -lrt \n colrm doesnotmatter"
-        commands = list(map(lambda x: x.strip(), data_payload.split("\n")))
-        headers = {'Content-type': 'text/plain'}
-
-        response = requests.post(
-            self.server + f"/test/{test_id}",
-            data=f"{data_payload}", headers=headers)
-        print(dump.dump_all(response))
-        body = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get('message'), test_id)
-        time.sleep(1)
-        response = requests.get(self.server + f"/test")
-        body = response.json()
-        self.assertEqual(len(body.get('message').get("commands")), len(commands) - 1)
-        self.assertEqual(body.get('message').get("commands").get(commands[1]).get("status"), "finished")
-        self.assertEqual(body.get('message').get("commands").get(commands[1]).get("details").get("err"), "")
-        self.assertEqual(body.get('message').get("commands").get(commands[2]).get("status"), "finished")
-        self.assertNotEqual(body.get('message').get("commands").get(commands[2]).get("details").get("err"), "")
-
     def test_teststop_p(self):
         test_id = "100"
-        data_payload = f"sleep 7 \n sleep 3600 \n sleep 3601"
+        data_payload = f"ping -n 7 127.0.0.1\n ping -n 3600 127.0.0.1\n ping -n 3601 127.0.0.1"
         commands = list(map(lambda x: x.strip(), data_payload.split("\n")))
         headers = {'Content-type': 'text/plain'}
+
+        response = requests.delete(self.server + "/test")
+        self.assertEqual(response.status_code, 200)
 
         response = requests.post(
             self.server + f"/test/{test_id}",
@@ -468,7 +449,7 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'), test_id)
-        time.sleep(2)
+        time.sleep(4)
         response = requests.get(self.server + "/test")
         body = response.json()
         self.assertEqual(body.get('message').get("id"), test_id)
@@ -566,13 +547,13 @@ class FlaskServerTestCase(unittest.TestCase):
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIn("not found",
+        self.assertIn("is not recognized as an internal or external command",
                       body.get('message').get('commands').get(command).get('details').get('err'))
         self.assertEqual(body.get('message').get('commands').get(command).get('details').get('out'), "")
         self.assertIsNotNone(body.get('time'))
 
     def test_executecommand_p(self):
-        command = "cat /etc/hostname"
+        command = "type requirements.txt"
 
         response = requests.post(
             self.server + f"/command",
@@ -592,90 +573,31 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsInstance(body.get('message').get('commands').get(command).get('details').get('args'), list)
         self.assertIsNotNone(body.get('time'))
 
-    # def test_executecommand_sum_seq_p(self):
-    #     a = 1
-    #     b = 2
-    #     commands = ["sleep {}".format(a), "sleep {}".format(b)]
-    #
-    #     response = requests.post(self.server + f"/command", data="\n".join(commands))
-    #     body = response.json()
-    #
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), a + b)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
-    #     self.assertIsNotNone(body.get('time'))
-    #
-    # def test_executecommandparallel_sum_parallel_p(self):
-    #     a = 1
-    #     b = 2
-    #     commands = ["sleep {}".format(a), "sleep {}".format(b)]
-    #
-    #     response = requests.post(self.server + f"/commandparallel", data="\n".join(commands))
-    #     body = response.json()
-    #
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), b)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
-    #     self.assertIsNotNone(body.get('time'))
-    #
-    # def test_executetest_sum_seq_p(self):
-    #     test_id = "test_executetest_sum_seq_p"
-    #     a = 1
-    #     b = 2
-    #     commands = ["sleep {}".format(a), "sleep {}".format(b)]
-    #
-    #     response = requests.post(self.server + f"/test/{}".format(test_id ), data="\n".join(commands))
-    #     self.assertEqual(response.status_code, 200)
-    #     time.sleep(a + b + 1)
-    #
-    #     response = requests.get(self.server + f"/test")
-    #     body = response.json()
-    #     self.assertEqual(response.status_code, 200)
-    #
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), a + b)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
-    #     self.assertIsNotNone(body.get('time'))
-    #
-    # def test_executetest_sum_parallel_p(self):
-    #     test_id = "test_executetest_sum_parallel_p"
-    #     a = 1
-    #     b = 2
-    #     commands = ["sleep {}".format(a), "sleep {}".format(b)]
-    #
-    #     response = requests.post(self.server + f"/testparallel/{}".format(test_id), data="\n".join(commands))
-    #     self.assertEqual(response.status_code, 200)
-    #     time.sleep(b + 1)
-    #
-    #     response = requests.get(self.server + f"/test")
-    #     body = response.json()
-    #     self.assertEqual(response.status_code, 200)
-    #
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), b)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
-    #     self.assertIsNotNone(body.get('time'))
+    def test_executecommand_java_isinstalled_p(self):
+        command = "java -version"
+
+        response = requests.post(
+            self.server + f"/command",
+            data=command)
+
+        body = response.json()
+        print(dump.dump_all(response))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('message').get('commands').get(command).get('details').get('code'), 0)
+        self.assertEqual(body.get('message').get('commands').get(command).get('details').get('out'), "")
+        self.assertNotIn("is not recognized",
+                         body.get('message').get('commands').get(command).get('details').get('err'))
+        self.assertGreater(body.get('message').get('commands').get(command).get('details').get('pid'), 0)
+        self.assertIsInstance(body.get('message').get('commands').get(command).get('details').get('args'), list)
+        self.assertIsNotNone(body.get('time'))
 
     def test_executecommand_grep_things_p(self):
-        command = "ls -lrt | grep main"
+        file = "main_flask.py"
+        command = "dir /B | findstr /R {}".format(file)
 
         response = requests.post(
             self.server + f"/command",
@@ -710,7 +632,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertEqual(body.get('message').get('commands').get(command).get('details').get('code'), 0)
-        self.assertEqual(body.get('message').get('commands').get(command).get('details').get('out'), "1\n2")
+        self.assertEqual(body.get('message').get('commands').get(command).get('details').get('out'), "1 \r\n2")
         self.assertEqual(body.get('message').get('commands').get(command).get('details').get('err'), "")
         self.assertGreater(body.get('message').get('commands').get(command).get('details').get('pid'), 0)
         self.assertIsInstance(body.get('message').get('commands').get(command).get('details').get('args'), list)
@@ -718,7 +640,7 @@ class FlaskServerTestCase(unittest.TestCase):
 
     def test_executecommand_grep_and_out_redirect_p(self):
         file = "whatever.txt"
-        commands = ["ls -lrt | grep main > {}".format(file), "cat {}".format(file)]
+        commands = ["dir > {}".format(file), "type {}".format(file)]
 
         response = requests.post(
             self.server + f"/command",
@@ -759,7 +681,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     def test_executecommand_first_valid_is_executed_n(self):
-        command = "rm -rf /tmp\nls -lrt"
+        command = "rm -rf /tmp\ndir"
         commands = command.split("\n")
 
         response = requests.post(
@@ -779,8 +701,89 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
+    # def test_executecommand_sum_seq_p(self):
+    #     a = 2
+    #     b = 3
+    #     commands = ["ping -n {} 127.0.0.1".format(a), "ping -n {} 127.0.0.1".format(b)]
+    #
+    #     response = requests.post(self.server + f"/command", data="\n".join(commands))
+    #     body = response.json()
+    #
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertEqual(body.get('description'),
+    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+    #     self.assertEqual(body.get('version'), self.expected_version)
+    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
+    #     self.assertEqual(body.get('message').get('duration'), a + b - 2)
+    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a - 1)
+    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b - 1)
+    #     self.assertIsNotNone(body.get('time'))
+    #
+    # def test_executecommand_sum_parallel_p(self):
+    #     a = 2
+    #     b = 3
+    #     commands = ["ping -n {} 127.0.0.1".format(a), "ping -n {} 127.0.0.1".format(b)]
+    #
+    #     response = requests.post(self.server + f"/commandparallel", data="\n".join(commands))
+    #     body = response.json()
+    #
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertEqual(body.get('description'),
+    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+    #     self.assertEqual(body.get('version'), self.expected_version)
+    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
+    #     self.assertEqual(body.get('message').get('duration'), b - 1)
+    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a - 1)
+    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b - 1)
+    #     self.assertIsNotNone(body.get('time'))
+    #
+    # def test_executetest_sum_seq_p(self):
+    #     test_id = "test_executetest_sum_seq_p"
+    #     a = 2
+    #     b = 3
+    #     commands = ["ping -n {} 127.0.0.1".format(a), "ping -n {} 127.0.0.1".format(b)]
+    #
+    #     response = requests.post(self.server + f"/test/{}".format(test_id), data="\n".join(commands))
+    #     self.assertEqual(response.status_code, 200)
+    #     time.sleep(a + b + 1)
+    #
+    #     response = requests.get(self.server + f"/test")
+    #     body = response.json()
+    #     self.assertEqual(response.status_code, 200)
+    #
+    #     self.assertEqual(body.get('description'),
+    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+    #     self.assertEqual(body.get('version'), self.expected_version)
+    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
+    #     self.assertEqual(body.get('message').get('duration'), a + b - 2)
+    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a - 1)
+    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b - 1)
+    #     self.assertIsNotNone(body.get('time'))
+    #
+    # def test_executetest_sum_parallel_p(self):
+    #     a = 2
+    #     b = 3
+    #     commands = ["ping -n {} 127.0.0.1".format(a), "ping -n {} 127.0.0.1".format(b)]
+    #
+    #     response = requests.post(self.server + f"/testparallel", data="\n".join(commands))
+    #     self.assertEqual(response.status_code, 200)
+    #     time.sleep(b + 1)
+    #
+    #     response = requests.get(self.server + f"/test")
+    #     body = response.json()
+    #     self.assertEqual(response.status_code, 200)
+    #
+    #     self.assertEqual(body.get('description'),
+    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+    #     self.assertEqual(body.get('version'), self.expected_version)
+    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
+    #     self.assertEqual(body.get('message').get('duration'), b - 1)
+    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a - 1)
+    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b - 1)
+    #     self.assertIsNotNone(body.get('time'))
+
     def test_executecommand_timeout_from_client_n(self):
-        command = "sleep 20"
+        command = "ping -n 20 127.0.0.1"
 
         try:
             requests.post(
@@ -843,5 +846,6 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('code'), Constants.SET_ENV_VAR_FAILURE)
         self.assertIsNotNone(body.get('time'))
 
-        if __name__ == '__main__':
-            unittest.main()
+
+if __name__ == '__main__':
+    unittest.main()

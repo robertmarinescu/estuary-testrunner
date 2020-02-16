@@ -213,7 +213,7 @@ paths:
     post:
       tags:
         - estuary-testrunner
-      summary: Starts the tests / commands
+      summary: Starts the tests / commands in detached mode and sequentially
       consumes:
         - text/plain
       produces:
@@ -230,15 +230,15 @@ paths:
         type: string
       - name: test_file_content
         in: body
-        description: List of commands to run. E.g. make/mvn/sh/npm
+        description: List of commands to run one after the other. E.g. make/mvn/sh/npm
         required: true
         schema:
           $ref: '#/definitions/test_file_content'
       responses:
         200:
-          description: test start success
+          description: commands start success
         404:
-          description: test start failure
+          description: commands start failure
   /test:
     get:
       tags:
@@ -355,7 +355,7 @@ paths:
     post:
       tags:
         - estuary-testrunner
-      summary: Starts one single command in blocking mode. The Api can timeout
+      summary: Starts multiple commands in blocking mode sequentially. The API can timeout.
       consumes:
         - text/plain
       produces:
@@ -365,17 +365,17 @@ paths:
         name: Token
         type: string
         required: false
-      - name: command
+      - name: commands
         in: body
-        description: Command to run. E.g. ls -lrt
+        description: Commands to run. E.g. ls -lrt
         required: true
         schema:
-          $ref: '#/definitions/command_content'
+          $ref: '#/definitions/commands_content'
       responses:
         200:
-          description: test start success
+          description: commands start success
         404:
-          description: test start failure
+          description: commands start failure
 definitions:
     envvar:
       type: object
@@ -390,11 +390,12 @@ definitions:
       example: |
         mvn test -Dtype=Prepare
         mvn test -Dtype=ExecuteTests
-    command_content:
+    commands_content:
       type: string
       minLength: 3
       example: |
         ls -lrt
+        cat config.json
 externalDocs:
   description: Find out more on github
   url: https://github.com/dinuta/estuary-testrunner

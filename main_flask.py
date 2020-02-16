@@ -15,6 +15,7 @@ if __name__ == "__main__":
     port = properties["port"]
     host = '0.0.0.0'
     fluentd_tag = "startup"
+    variables = "testinfo.json"
 
     message_dumper = MessageDumper()
     io_utils = IOUtils()
@@ -25,7 +26,6 @@ if __name__ == "__main__":
     io_utils.create_dir(Path(EnvConstants.TEMPLATES_PATH))
     io_utils.create_dir(Path(EnvConstants.VARIABLES_PATH))
 
-    variables = "testinfo.json"
     file = EnvConstants.VARIABLES_PATH + "/" + variables
 
     try:

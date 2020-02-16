@@ -1,5 +1,5 @@
-class ApiCodeConstants:
-    # api responses
+class Constants:
+
     SUCCESS = "1000"
     JINJA2_RENDER_FAILURE = "1001"
     GET_FILE_FAILURE = "1002"
