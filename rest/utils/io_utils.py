@@ -42,7 +42,11 @@ class IOUtils:
 
     @staticmethod
     def get_filtered_list_regex(input_list, regex):
-        return [i.strip() for i in input_list if not regex.search(i)]
+        filtered_list = []
+        for elem in input_list:
+            if not regex.search(elem) and elem.strip() != "":
+                filtered_list.append(elem.strip())
+        return filtered_list
 
     @staticmethod
     def read_file(file):

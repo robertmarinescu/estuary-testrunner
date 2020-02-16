@@ -595,6 +595,27 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsInstance(body.get('message').get('commands').get(command).get('details').get('args'), list)
         self.assertIsNotNone(body.get('time'))
 
+    def test_executecommand_java_isinstalled_p(self):
+        command = "java -version"
+
+        response = requests.post(
+            self.server + f"/command",
+            data=command)
+
+        body = response.json()
+        print(dump.dump_all(response))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('message').get('commands').get(command).get('details').get('code'), 0)
+        self.assertNotIn("is not recognized", body.get('message').get('commands').get(command).get('details').get('out'))
+        self.assertEqual(body.get('message').get('commands').get(command).get('details').get('err'), "")
+        self.assertGreater(body.get('message').get('commands').get(command).get('details').get('pid'), 0)
+        self.assertIsInstance(body.get('message').get('commands').get(command).get('details').get('args'), list)
+        self.assertIsNotNone(body.get('time'))
+
     def test_executecommand_grep_things_p(self):
         file = "main_flask.py"
         command = "dir /B | findstr /R {}".format(file)
