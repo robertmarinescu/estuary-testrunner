@@ -271,60 +271,6 @@ def test_start(test_id):
         mimetype="application/json")
 
 
-@app.route('/testparallel/<test_id>', methods=['POST', 'PUT'])
-def test_start_parallel(test_id):
-    test_id = test_id.strip()
-    variables = "testinfo.json"
-    start_py_path = str(Path(".").absolute()) + "/start.py"
-    os.environ['TEMPLATE'] = "start.py"
-    os.environ['VARIABLES'] = variables
-    io_utils = IOUtils()
-    cmd_utils = CmdUtils()
-    http = HttpResponse()
-    input_data = request.data.decode("UTF-8", "replace").strip()
-
-    if not input_data:
-        return Response(json.dumps(http.failure(ApiCodeConstants.EMPTY_REQUEST_BODY_PROVIDED,
-                                                ErrorCodes.HTTP_CODE.get(ApiCodeConstants.EMPTY_REQUEST_BODY_PROVIDED),
-                                                ErrorCodes.HTTP_CODE.get(ApiCodeConstants.EMPTY_REQUEST_BODY_PROVIDED),
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
-    try:
-        input_data_list = io_utils.get_filtered_list_regex(input_data.split("\n"),
-                                                           re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
-        input_data_list = list(map(lambda x: x.strip(), input_data_list))
-        input_data_dict = dict.fromkeys(input_data_list, {"status": "scheduled", "details": {}})
-        test_info_init["started"] = "true"
-        test_info_init["id"] = test_id
-        test_info_init["commands"] = input_data_dict
-        test_info_init["startedat"] = str(datetime.datetime.now())
-        io_utils.write_to_file_dict(EnvConstants.TEST_INFO_PATH, test_info_init)
-    except Exception as e:
-        exception = "Exception({0})".format(e.__str__())
-        return Response(json.dumps(http.failure(ApiCodeConstants.TEST_START_FAILURE,
-                                                ErrorCodes.HTTP_CODE.get(ApiCodeConstants.TEST_START_FAILURE) % test_id,
-                                                exception,
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
-
-    try:
-        os.chmod(start_py_path, stat.S_IRWXU)
-        input_data_list.insert(0, "parallel")
-        input_data_list.insert(0, variables)
-        input_data_list.insert(0, start_py_path)
-        # input_data_list.insert(0, "python")
-        cmd_utils.run_cmd_detached(input_data_list)
-    except Exception as e:
-        result = "Exception({0})".format(e.__str__())
-        return Response(json.dumps(http.failure(ApiCodeConstants.TEST_START_FAILURE,
-                                                ErrorCodes.HTTP_CODE.get(ApiCodeConstants.TEST_START_FAILURE) % test_id,
-                                                result,
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
-
-    return Response(
-        json.dumps(http.success(ApiCodeConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiCodeConstants.SUCCESS), test_id)),
-        200,
-        mimetype="application/json")
-
-
 @app.route('/file', methods=['POST', 'PUT'])
 def upload_file():
     io_utils = IOUtils()
@@ -503,63 +449,6 @@ def execute_command():
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
         input_data_list.insert(0, "sequential")
-        input_data_list.insert(0, variables)
-        input_data_list.insert(0, start_py_path)
-        # input_data_list.insert(0, "python")
-        cmd_utils.run_cmd_shell_false(input_data_list)
-        response = json.loads(io_utils.read_file(EnvConstants.COMMAND_INFO_PATH))
-    except Exception as e:
-        exception = "Exception({0})".format(e.__str__())
-        return Response(json.dumps(http.failure(ApiCodeConstants.COMMAND_EXEC_FAILURE,
-                                                ErrorCodes.HTTP_CODE.get(
-                                                    ApiCodeConstants.COMMAND_EXEC_FAILURE),
-                                                exception,
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
-
-    return Response(
-        json.dumps(
-            http.success(ApiCodeConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiCodeConstants.SUCCESS), response)),
-        200,
-        mimetype="application/json")
-
-
-@app.route('/commandparallel', methods=['POST', 'PUT'])
-def execute_command_parallel():
-    test_id = "none"
-    variables = "commandinfo.json"
-    start_py_path = str(Path(".").absolute()) + "/start.py"
-    os.environ['TEMPLATE'] = "start.py"
-    os.environ['VARIABLES'] = variables
-    io_utils = IOUtils()
-    cmd_utils = CmdUtils()
-    http = HttpResponse()
-    input_data = request.data.decode("UTF-8", "replace").strip()
-
-    if not input_data:
-        return Response(json.dumps(http.failure(ApiCodeConstants.EMPTY_REQUEST_BODY_PROVIDED,
-                                                ErrorCodes.HTTP_CODE.get(ApiCodeConstants.EMPTY_REQUEST_BODY_PROVIDED),
-                                                ErrorCodes.HTTP_CODE.get(ApiCodeConstants.EMPTY_REQUEST_BODY_PROVIDED),
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
-    try:
-        input_data_list = io_utils.get_filtered_list_regex(input_data.split("\n"),
-                                                           re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
-        input_data_list = list(map(lambda x: x.strip(), input_data_list))
-        input_data_dict = dict.fromkeys(input_data_list, {"status": "scheduled", "details": {}})
-        test_info_init["started"] = "true"
-        test_info_init["id"] = test_id
-        test_info_init["commands"] = input_data_dict
-        test_info_init["startedat"] = str(datetime.datetime.now())
-        io_utils.write_to_file_dict(EnvConstants.COMMAND_INFO_PATH, test_info_init)
-    except Exception as e:
-        exception = "Exception({0})".format(e.__str__())
-        return Response(json.dumps(http.failure(ApiCodeConstants.TEST_START_FAILURE,
-                                                ErrorCodes.HTTP_CODE.get(ApiCodeConstants.TEST_START_FAILURE) % test_id,
-                                                exception,
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
-
-    try:
-        os.chmod(start_py_path, stat.S_IRWXU)
-        input_data_list.insert(0, "parallel")
         input_data_list.insert(0, variables)
         input_data_list.insert(0, start_py_path)
         # input_data_list.insert(0, "python")

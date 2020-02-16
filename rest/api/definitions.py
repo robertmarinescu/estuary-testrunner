@@ -36,7 +36,7 @@ swagger_file_content = '''
 info:
   description: |
     Estuary testrunner which will run your commands and tests
-  version: "4.0.2"
+  version: "4.0.1"
   title: estuary-testrunner
   termsOfService: http://swagger.io/terms/
   contact:

@@ -18,8 +18,6 @@ class TestRunnerParallel:
         print("Input json is: " + json.dumps(dictionary) + "\n")
         status_finished = "finished"
         status_in_progress = "in progress"
-        dictionary['commands'] = {}
-        dictionary['commands'][command.strip()] = {}
         dictionary['commands'][command.strip()]['status'] = status_in_progress
         start = datetime.datetime.now()
         dictionary['commands'][command.strip()]['startedat'] = str(start)

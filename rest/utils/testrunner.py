@@ -22,7 +22,6 @@ class TestRunner:
             command_dict['start_pid'] = os.getpid()
             start_total = datetime.datetime.now()
             for command in commands:
-                command_dict['commands'][command.strip()] = {}
                 command_dict['commands'][command.strip()]['status'] = status_in_progress
                 start = datetime.datetime.now()
                 command_dict['commands'][command.strip()]['startedat'] = str(start)
