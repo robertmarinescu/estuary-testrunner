@@ -13,18 +13,11 @@ if __name__ == '__main__':
     VARIABLES_PATH = WORKSPACE + "/variables"
     COMMAND_LOGGER_PATH = WORKSPACE + "/commandlogger.txt"
     io_utils = IOUtils()
-
-    json_file = VARIABLES_PATH + "/commandinfo.json"
-    if sys.argv[1] is not None:
-        json_file = VARIABLES_PATH + "/{}".format(sys.argv[1].strip())
-    mode = "parallel"
-    if sys.argv[2] is not None:
-        mode = sys.argv[2].strip()
-
     io_utils.append_to_file(COMMAND_LOGGER_PATH, " ".join(sys.argv))
 
-    status_finished = "finished"
-    status_in_progress = "in progress"
+    json_file = VARIABLES_PATH + "/{}".format(sys.argv[1].strip())
+    mode = sys.argv[2].strip()
+
     min_args = 4
     if len(sys.argv) < min_args:
         raise Exception("Error: Expecting at least {} args. Got {}, args={}".format(min_args, len(sys.argv), sys.argv))

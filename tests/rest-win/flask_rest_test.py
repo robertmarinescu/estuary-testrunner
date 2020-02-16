@@ -610,8 +610,9 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertEqual(body.get('message').get('commands').get(command).get('details').get('code'), 0)
-        self.assertNotIn("is not recognized", body.get('message').get('commands').get(command).get('details').get('out'))
-        self.assertEqual(body.get('message').get('commands').get(command).get('details').get('err'), "")
+        self.assertEqual(body.get('message').get('commands').get(command).get('details').get('out'), "")
+        self.assertNotIn("is not recognized",
+                         body.get('message').get('commands').get(command).get('details').get('err'))
         self.assertGreater(body.get('message').get('commands').get(command).get('details').get('pid'), 0)
         self.assertIsInstance(body.get('message').get('commands').get(command).get('details').get('args'), list)
         self.assertIsNotNone(body.get('time'))
