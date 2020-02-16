@@ -434,28 +434,6 @@ class FlaskServerTestCase(unittest.TestCase):
         end = time.time()
         print(f"made {repetitions} gettestinfo repetitions in {end - start} s")
 
-    def test_gettestinfo_rm_commands_200_p(self):
-        test_id = "101"
-        data_payload = f"rm -rf /etc \n dir \n colrm doesnotmatter"
-        commands = list(map(lambda x: x.strip(), data_payload.split("\n")))
-        headers = {'Content-type': 'text/plain'}
-
-        response = requests.post(
-            self.server + f"/test/{test_id}",
-            data=f"{data_payload}", headers=headers)
-        print(dump.dump_all(response))
-        body = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get('message'), test_id)
-        time.sleep(1)
-        response = requests.get(self.server + f"/test")
-        body = response.json()
-        self.assertEqual(len(body.get('message').get("commands")), len(commands) - 1)
-        self.assertEqual(body.get('message').get("commands").get(commands[1]).get("status"), "finished")
-        self.assertEqual(body.get('message').get("commands").get(commands[1]).get("details").get("err"), "")
-        self.assertEqual(body.get('message').get("commands").get(commands[2]).get("status"), "finished")
-        self.assertNotEqual(body.get('message').get("commands").get(commands[2]).get("details").get("err"), "")
-
     def test_teststop_p(self):
         test_id = "100"
         data_payload = f"ping -n 7 127.0.0.1\n ping -n 3600 127.0.0.1\n ping -n 3601 127.0.0.1"
