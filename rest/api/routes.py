@@ -27,6 +27,7 @@ from rest.utils.cmd_utils import CmdUtils
 from rest.utils.fluentd_utils import FluentdUtils
 from rest.utils.io_utils import IOUtils
 from rest.utils.process_utils import ProcessUtils
+from rest.utils.testrunner_in_memory import TestRunnerInMemory
 
 app = create_app()
 logger = sender.FluentSender(properties.get('name'), host=properties["fluentd_ip"],
@@ -416,11 +417,9 @@ def test_stop():
 def execute_command():
     test_id = "none"
     variables = "commandinfo.json"
-    start_py_path = str(Path(".").absolute()) + "/start.py"
     os.environ['TEMPLATE'] = "start.py"
     os.environ['VARIABLES'] = variables
     io_utils = IOUtils()
-    cmd_utils = CmdUtils()
     http = HttpResponse()
     input_data = request.data.decode("UTF-8", "replace").strip()
 
@@ -447,13 +446,8 @@ def execute_command():
                                                 str(traceback.format_exc()))), 404, mimetype="application/json")
 
     try:
-        os.chmod(start_py_path, stat.S_IRWXU)
-        input_data_list.insert(0, "sequential")
-        input_data_list.insert(0, variables)
-        input_data_list.insert(0, start_py_path)
-        # input_data_list.insert(0, "python")
-        cmd_utils.run_cmd_shell_false(input_data_list)
-        response = json.loads(io_utils.read_file(EnvConstants.COMMAND_INFO_PATH))
+        testrunner = TestRunnerInMemory()
+        response = testrunner.run_commands(input_data_list)
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
         return Response(json.dumps(http.failure(ApiCodeConstants.COMMAND_EXEC_FAILURE,

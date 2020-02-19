@@ -18,6 +18,19 @@ class IOUtils:
             f.write(content)
 
     @staticmethod
+    def create_file(file):
+        file = Path(file)
+        if not file.exists():
+            IOUtils.write_to_file(file, "")
+
+    @staticmethod
+    def read_last_line(file):
+        with open(file, 'r') as f:
+            lines = f.read().splitlines()
+            last_line = lines[-1]
+            return last_line
+
+    @staticmethod
     def append_to_file(file, content=""):
         with open(file, 'a') as f:
             f.write(content + "\n")

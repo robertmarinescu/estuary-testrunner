@@ -1,37 +1,46 @@
 #!/usr/bin/env python3
-
 import json
 import os
 import sys
 
 from rest.utils.io_utils import IOUtils
 from rest.utils.testrunner import TestRunner
-from rest.utils.testrunner_parallel import TestRunnerParallel
 
 if __name__ == '__main__':
     WORKSPACE = os.environ.get('WORKSPACE') if os.environ.get('WORKSPACE') else "tmp"
     VARIABLES_PATH = WORKSPACE + "/variables"
     COMMAND_LOGGER_PATH = WORKSPACE + "/commandlogger.txt"
+    supported_modes = ("sequential", "parallel")
+    supported_files = ("testinfo.json", "commandinfo.json")
     io_utils = IOUtils()
-    io_utils.append_to_file(COMMAND_LOGGER_PATH, " ".join(sys.argv))
-
-    json_file = VARIABLES_PATH + "/{}".format(sys.argv[1].strip())
-    mode = sys.argv[2].strip()
 
     min_args = 4
     if len(sys.argv) < min_args:
-        raise Exception("Error: Expecting at least {} args. Got {}, args={}".format(min_args, len(sys.argv), sys.argv))
+        raise Exception(
+            "Error: Expecting at least {} args. Got {}, args={}".format(min_args, len(sys.argv), sys.argv))
+
+    file = sys.argv[1].strip()
+    mode = sys.argv[2].strip()
+    commands_list = sys.argv[3:]
+
+    if mode not in supported_modes:
+        raise Exception(
+            "Error: Unsupported mode argument: {}".format(mode) + ". Expected files: {}".format(
+                json.dumps(supported_modes)))
+
+    if file not in supported_files:
+        raise Exception(
+            "Error: Unsupported file argument: {}".format(file) + ". Expected files: {}".format(
+                json.dumps(supported_files)))
+
+    file_path = VARIABLES_PATH + "/{}".format(file)
+    io_utils.append_to_file(COMMAND_LOGGER_PATH, json.dumps(sys.argv))
+
     try:
-        if mode == "sequential":
+        if mode == supported_modes[0]:
             testrunner = TestRunner()
-            testrunner.run_commands(json_file, sys.argv[3:])
-            dictionary = io_utils.read_dict_from_file(json_file)
-        elif mode == "parallel":
-            testrunner = TestRunnerParallel()
-            testrunner.run_commands(json_file, sys.argv[3:])
-            dictionary = io_utils.read_dict_from_file(json_file)
-        else:
-            raise Exception("Unsupported mode: " + mode)
+            testrunner.run_commands(file_path, sys.argv[3:])
+            dictionary = io_utils.read_dict_from_file(file_path)
     except Exception as e:
         raise e
 
