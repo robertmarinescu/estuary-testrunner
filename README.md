@@ -7,12 +7,14 @@ Support project: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img s
 ## Estuary testrunner
 Estuary test runner service. This service runs your tests.
 
-## Linux stats
-[![Build Status](https://travis-ci.org/dinuta/estuary-testrunner.svg?branch=master)](https://travis-ci.org/dinuta/estuary-testrunner)
+## Coverage and code quality
 [![Coverage Status](https://coveralls.io/repos/github/dinuta/estuary-testrunner/badge.svg?branch=master)](https://coveralls.io/github/dinuta/estuary-testrunner?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7aeb5e03e5ff4acb9ffc4f1b2e705596)](https://www.codacy.com/manual/dinuta/estuary-testrunner?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dinuta/estuary-testrunner&amp;utm_campaign=Badge_Grade)
 
-## Windows stats
+## Linux status
+[![Build Status](https://travis-ci.org/dinuta/estuary-testrunner.svg?branch=master)](https://travis-ci.org/dinuta/estuary-testrunner)
+
+## Windows status
 [![CircleCI](https://circleci.com/gh/dinuta/estuary-testrunner.svg?style=svg)](https://circleci.com/gh/dinuta/estuary-testrunner)  
 
 ## Docker Hub

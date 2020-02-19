@@ -49,7 +49,7 @@ class IOUtils:
     def read_dict_from_file(file):
         try:
             with open(file, 'r') as f:
-                return dict(json.loads(f.read()))
+                return json.loads(f.read())
         except Exception as e:
             raise e
 

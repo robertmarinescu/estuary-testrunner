@@ -465,7 +465,6 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('message'), test_id)
 
         response = requests.get(self.server + "/test")
-        print(dump.dump_response(response))
         self.assertEqual(response.status_code, 200)
         body = response.json()
         # self.assertEqual(body.get('message').get("finished"), "true")
@@ -701,86 +700,46 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
-    # def test_executecommand_sum_seq_p(self):
-    #     a = 2
-    #     b = 3
-    #     commands = ["ping -n {} 127.0.0.1".format(a), "ping -n {} 127.0.0.1".format(b)]
-    #
-    #     response = requests.post(self.server + f"/command", data="\n".join(commands))
-    #     body = response.json()
-    #
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), a + b - 2)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a - 1)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b - 1)
-    #     self.assertIsNotNone(body.get('time'))
-    #
-    # def test_executecommand_sum_parallel_p(self):
-    #     a = 2
-    #     b = 3
-    #     commands = ["ping -n {} 127.0.0.1".format(a), "ping -n {} 127.0.0.1".format(b)]
-    #
-    #     response = requests.post(self.server + f"/commandparallel", data="\n".join(commands))
-    #     body = response.json()
-    #
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), b - 1)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a - 1)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b - 1)
-    #     self.assertIsNotNone(body.get('time'))
-    #
-    # def test_executetest_sum_seq_p(self):
-    #     test_id = "test_executetest_sum_seq_p"
-    #     a = 2
-    #     b = 3
-    #     commands = ["ping -n {} 127.0.0.1".format(a), "ping -n {} 127.0.0.1".format(b)]
-    #
-    #     response = requests.post(self.server + f"/test/{}".format(test_id), data="\n".join(commands))
-    #     self.assertEqual(response.status_code, 200)
-    #     time.sleep(a + b + 1)
-    #
-    #     response = requests.get(self.server + f"/test")
-    #     body = response.json()
-    #     self.assertEqual(response.status_code, 200)
-    #
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), a + b - 2)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a - 1)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b - 1)
-    #     self.assertIsNotNone(body.get('time'))
-    #
-    # def test_executetest_sum_parallel_p(self):
-    #     a = 2
-    #     b = 3
-    #     commands = ["ping -n {} 127.0.0.1".format(a), "ping -n {} 127.0.0.1".format(b)]
-    #
-    #     response = requests.post(self.server + f"/testparallel", data="\n".join(commands))
-    #     self.assertEqual(response.status_code, 200)
-    #     time.sleep(b + 1)
-    #
-    #     response = requests.get(self.server + f"/test")
-    #     body = response.json()
-    #     self.assertEqual(response.status_code, 200)
-    #
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), b - 1)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a - 1)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b - 1)
-    #     self.assertIsNotNone(body.get('time'))
+    def test_executecommand_sum_seq_p(self):
+        a = 2
+        b = 3
+        commands = ["ping -n {} 127.0.0.1".format(a), "ping -n {} 127.0.0.1".format(b)]
+
+        response = requests.post(self.server + f"/command", data="\n".join(commands))
+        body = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('message').get('duration'), a + b - 2)
+        self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a - 1)
+        self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b - 1)
+        self.assertIsNotNone(body.get('time'))
+
+    def test_executetest_sum_seq_p(self):
+        test_id = "test_executetest_sum_seq_p"
+        a = 2
+        b = 3
+        commands = ["ping -n {} 127.0.0.1".format(a), "ping -n {} 127.0.0.1".format(b)]
+
+        response = requests.post(self.server + "/test/{}".format(test_id), data="\n".join(commands))
+        self.assertEqual(response.status_code, 200)
+        time.sleep(a + b + 1)
+
+        response = requests.get(self.server + f"/test")
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('message').get('duration'), a + b - 2)
+        self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a - 1)
+        self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b - 1)
+        self.assertIsNotNone(body.get('time'))
 
     def test_executecommand_timeout_from_client_n(self):
         command = "ping -n 20 127.0.0.1"

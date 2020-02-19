@@ -239,11 +239,8 @@ def test_start(test_id):
         input_data_list = io_utils.get_filtered_list_regex(input_data.split("\n"),
                                                            re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
         input_data_list = list(map(lambda x: x.strip(), input_data_list))
-        input_data_dict = dict.fromkeys(input_data_list, {"status": "scheduled", "details": {}})
-        test_info_init["started"] = "true"
         test_info_init["id"] = test_id
-        test_info_init["commands"] = input_data_dict
-        test_info_init["startedat"] = str(datetime.datetime.now())
+        test_info_init["pid"] = os.getpid()
         io_utils.write_to_file_dict(EnvConstants.TEST_INFO_PATH, test_info_init)
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
@@ -257,7 +254,7 @@ def test_start(test_id):
         input_data_list.insert(0, "sequential")
         input_data_list.insert(0, variables)
         input_data_list.insert(0, start_py_path)
-        # input_data_list.insert(0, "python")
+        input_data_list.insert(0, "python")
         cmd_utils.run_cmd_detached(input_data_list)
     except Exception as e:
         result = "Exception({0})".format(e.__str__())
@@ -432,12 +429,6 @@ def execute_command():
         input_data_list = io_utils.get_filtered_list_regex(input_data.split("\n"),
                                                            re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
         input_data_list = list(map(lambda x: x.strip(), input_data_list))
-        input_data_dict = dict.fromkeys(input_data_list, {"status": "scheduled", "details": {}})
-        test_info_init["started"] = "true"
-        test_info_init["id"] = test_id
-        test_info_init["commands"] = input_data_dict
-        test_info_init["startedat"] = str(datetime.datetime.now())
-        io_utils.write_to_file_dict(EnvConstants.COMMAND_INFO_PATH, test_info_init)
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
         return Response(json.dumps(http.failure(ApiCodeConstants.TEST_START_FAILURE,

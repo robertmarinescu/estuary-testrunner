@@ -28,7 +28,6 @@ test_info_init = {
     "duration": "none",
     "id": "none",
     "pid": "none",
-    "start_pid": "none",
     "commands": {}
 }
 swagger_file_content = '''
