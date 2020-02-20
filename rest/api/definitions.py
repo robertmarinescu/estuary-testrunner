@@ -28,7 +28,6 @@ test_info_init = {
     "duration": "none",
     "id": "none",
     "pid": "none",
-    "start_pid": "none",
     "commands": {}
 }
 swagger_file_content = '''
@@ -36,7 +35,7 @@ swagger_file_content = '''
 info:
   description: |
     Estuary testrunner which will run your commands and tests
-  version: "4.0.1"
+  version: "4.0.2"
   title: estuary-testrunner
   termsOfService: http://swagger.io/terms/
   contact:
@@ -355,7 +354,7 @@ paths:
     post:
       tags:
         - estuary-testrunner
-      summary: Starts multiple commands in blocking mode sequentially. The API can timeout.
+      summary: Starts multiple commands in blocking mode sequentially. Set the client timeout at needed value.
       consumes:
         - text/plain
       produces:

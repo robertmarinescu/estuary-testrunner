@@ -10,7 +10,7 @@ if os.environ.get('FLUENTD_IP_PORT'):
 
 properties = {
     "name": "estuary-testrunner",
-    "version": "4.0.1",
+    "version": "4.0.2",
     "description": "estuary-testrunner",
     "author": "Catalin Dinuta",
     "platforms": ["Linux", "Mac"],

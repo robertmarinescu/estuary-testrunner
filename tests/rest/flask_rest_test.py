@@ -20,7 +20,7 @@ class FlaskServerTestCase(unittest.TestCase):
     # server = "http://192.168.100.47:8080"
     # server = "http://" + os.environ.get('SERVER')
 
-    expected_version = "4.0.1"
+    expected_version = "4.0.2"
 
     def setUp(self):
         requests.delete(self.server + "/test")
@@ -363,6 +363,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'), test_id)
 
+        time.sleep(1)
         response = requests.get(self.server + "/test")
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -372,8 +373,9 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertNotEqual(body.get('message').get('startedat'), "none")
         self.assertEqual(body.get('message').get('finishedat'), "none")
         self.assertEqual(body.get('message').get('duration'), "none")
-        for value in commands:
-            self.assertEqual(body.get('message').get("commands").get(value).get("status"), "scheduled")
+        self.assertEqual(body.get('message').get("commands").get(commands[0]).get("status"), "in progress")
+        self.assertEqual(body.get('message').get("commands").get(commands[1]).get("status"), "scheduled")
+
         time.sleep(int(payload) - 2)
         response = requests.get(self.server + "/test")
         body = response.json()
@@ -443,7 +445,6 @@ class FlaskServerTestCase(unittest.TestCase):
         response = requests.post(
             self.server + f"/test/{test_id}",
             data=f"{data_payload}", headers=headers)
-        print(dump.dump_all(response))
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'), test_id)
@@ -560,7 +561,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -579,7 +579,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -592,87 +591,46 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsInstance(body.get('message').get('commands').get(command).get('details').get('args'), list)
         self.assertIsNotNone(body.get('time'))
 
-    # def test_executecommand_sum_seq_p(self):
-    #     a = 1
-    #     b = 2
-    #     commands = ["sleep {}".format(a), "sleep {}".format(b)]
-    #
-    #     response = requests.post(self.server + f"/command", data="\n".join(commands))
-    #     body = response.json()
-    #
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), a + b)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
-    #     self.assertIsNotNone(body.get('time'))
-    #
-    # def test_executecommandparallel_sum_parallel_p(self):
-    #     a = 1
-    #     b = 2
-    #     commands = ["sleep {}".format(a), "sleep {}".format(b)]
-    #
-    #     response = requests.post(self.server + f"/commandparallel", data="\n".join(commands))
-    #     body = response.json()
-    #
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), b)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
-    #     self.assertIsNotNone(body.get('time'))
-    #
-    # def test_executetest_sum_seq_p(self):
-    #     test_id = "test_executetest_sum_seq_p"
-    #     a = 1
-    #     b = 2
-    #     commands = ["sleep {}".format(a), "sleep {}".format(b)]
-    #
-    #     response = requests.post(self.server + f"/test/{}".format(test_id ), data="\n".join(commands))
-    #     self.assertEqual(response.status_code, 200)
-    #     time.sleep(a + b + 1)
-    #
-    #     response = requests.get(self.server + f"/test")
-    #     body = response.json()
-    #     self.assertEqual(response.status_code, 200)
-    #
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), a + b)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
-    #     self.assertIsNotNone(body.get('time'))
-    #
-    # def test_executetest_sum_parallel_p(self):
-    #     test_id = "test_executetest_sum_parallel_p"
-    #     a = 1
-    #     b = 2
-    #     commands = ["sleep {}".format(a), "sleep {}".format(b)]
-    #
-    #     response = requests.post(self.server + f"/testparallel/{}".format(test_id), data="\n".join(commands))
-    #     self.assertEqual(response.status_code, 200)
-    #     time.sleep(b + 1)
-    #
-    #     response = requests.get(self.server + f"/test")
-    #     body = response.json()
-    #     self.assertEqual(response.status_code, 200)
-    #
-    #     self.assertEqual(body.get('description'),
-    #                      ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-    #     self.assertEqual(body.get('version'), self.expected_version)
-    #     self.assertEqual(body.get('code'), Constants.SUCCESS)
-    #     self.assertEqual(body.get('message').get('duration'), b)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
-    #     self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
-    #     self.assertIsNotNone(body.get('time'))
+    def test_executecommand_sum_seq_p(self):
+        a = 1
+        b = 2
+        commands = ["sleep {}".format(a), "sleep {}".format(b)]
+
+        response = requests.post(self.server + "/command", data="\n".join(commands))
+        body = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('message').get('duration'), a + b)
+        self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
+        self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
+        self.assertIsNotNone(body.get('time'))
+
+    def test_executetest_sum_seq_p(self):
+        test_id = "test_executetest_sum_seq_p"
+        a = 1
+        b = 2
+        commands = ["sleep {}".format(a), "sleep {}".format(b)]
+
+        response = requests.post(self.server + "/test/{}".format(test_id), data="\n".join(commands))
+        self.assertEqual(response.status_code, 200)
+        time.sleep(a + b + 1)
+
+        response = requests.get(self.server + "/test")
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
+        self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
+        self.assertEqual(body.get('message').get('duration'), a + b)
+        self.assertIsNotNone(body.get('time'))
 
     def test_executecommand_grep_things_p(self):
         command = "ls -lrt | grep main"
@@ -682,7 +640,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -703,7 +660,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -725,7 +681,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data="\n".join(commands))
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -751,7 +706,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('message').get('commands')), 0)
         self.assertEqual(body.get('version'), self.expected_version)
@@ -767,7 +721,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
