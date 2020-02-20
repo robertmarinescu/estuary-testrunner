@@ -363,6 +363,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'), test_id)
 
+        time.sleep(1)
         response = requests.get(self.server + "/test")
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -372,8 +373,9 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertNotEqual(body.get('message').get('startedat'), "none")
         self.assertEqual(body.get('message').get('finishedat'), "none")
         self.assertEqual(body.get('message').get('duration'), "none")
-        for value in commands:
-            self.assertEqual(body.get('message').get("commands").get(value).get("status"), "scheduled")
+        self.assertEqual(body.get('message').get("commands").get(commands[0]).get("status"), "in progress")
+        self.assertEqual(body.get('message').get("commands").get(commands[1]).get("status"), "scheduled")
+
         time.sleep(int(payload) - 2)
         response = requests.get(self.server + "/test")
         body = response.json()
@@ -625,9 +627,9 @@ class FlaskServerTestCase(unittest.TestCase):
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertEqual(body.get('message').get('duration'), a + b)
         self.assertEqual(body.get('message').get('commands').get(commands[0]).get('duration'), a)
         self.assertEqual(body.get('message').get('commands').get(commands[1]).get('duration'), b)
+        self.assertEqual(body.get('message').get('duration'), a + b)
         self.assertIsNotNone(body.get('time'))
 
     def test_executecommand_grep_things_p(self):

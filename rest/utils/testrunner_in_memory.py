@@ -27,7 +27,7 @@ class TestRunnerInMemory:
         details = {}
         for command in commands:
             start = datetime.datetime.now()
-            command_dict['commands'][command.strip()] = {}
+            command_dict['commands'][command.strip()] = {"status": "scheduled", "details": {}}
             command_dict['commands'][command.strip()]['status'] = status_in_progress
             command_dict['commands'][command.strip()]['startedat'] = str(start)
             try:

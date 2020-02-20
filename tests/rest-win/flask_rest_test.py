@@ -540,7 +540,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -559,7 +558,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -580,7 +578,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -603,7 +600,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -624,7 +620,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -646,7 +641,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data="\n".join(commands))
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
@@ -672,7 +666,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('message').get('commands')), 0)
         self.assertEqual(body.get('version'), self.expected_version)
@@ -688,7 +681,6 @@ class FlaskServerTestCase(unittest.TestCase):
             data=command)
 
         body = response.json()
-        print(dump.dump_all(response))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))

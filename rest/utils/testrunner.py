@@ -13,13 +13,14 @@ class TestRunner:
         self.__cmd_utils = CmdUtils()
         self.__io_utils = IOUtils()
 
-    def run_commands(self, json_file, commands):
+    def run_commands(self, json_file, test_id, commands):
         start_total = datetime.datetime.now()
 
         status_finished = "finished"
         status_in_progress = "in progress"
         command_dict = test_info_init
 
+        command_dict['id'] = test_id
         command_dict['pid'] = os.getpid()
         input_data_dict = dict.fromkeys(commands, {"status": "scheduled", "details": {}})
         command_dict["started"] = "true"
@@ -29,7 +30,7 @@ class TestRunner:
         details = {}
         for command in commands:
             start = datetime.datetime.now()
-            command_dict['commands'][command.strip()] = {}
+            command_dict['commands'][command.strip()] = {"status": "scheduled", "details": {}}
             command_dict['commands'][command.strip()]['status'] = status_in_progress
             command_dict['commands'][command.strip()]['startedat'] = str(start)
             self.__io_utils.write_to_file_dict(json_file, command_dict)

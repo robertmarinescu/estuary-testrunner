@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 import re
@@ -240,7 +239,6 @@ def test_start(test_id):
                                                            re.compile(r'(\s+|[^a-z]|^)rm\s+.*$'))
         input_data_list = list(map(lambda x: x.strip(), input_data_list))
         test_info_init["id"] = test_id
-        test_info_init["pid"] = os.getpid()
         io_utils.write_to_file_dict(EnvConstants.TEST_INFO_PATH, test_info_init)
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
@@ -251,10 +249,9 @@ def test_start(test_id):
 
     try:
         os.chmod(start_py_path, stat.S_IRWXU)
-        input_data_list.insert(0, "sequential")
-        input_data_list.insert(0, variables)
+        input_data_list.insert(0, test_id)
         input_data_list.insert(0, start_py_path)
-        input_data_list.insert(0, "python")
+        # input_data_list.insert(0, "python")
         cmd_utils.run_cmd_detached(input_data_list)
     except Exception as e:
         result = "Exception({0})".format(e.__str__())
